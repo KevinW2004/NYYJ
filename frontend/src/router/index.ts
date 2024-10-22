@@ -1,39 +1,33 @@
-import {
-    createRouter,
-    createWebHistory,
-    createWebHashHistory,
-    RouteRecordRaw
-} from 'vue-router'
+import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
+
 const routes: Array<RouteRecordRaw> = [
-    {
-        path: '/',
-        redirect: '/home',
-        meta: { index: 1 }
-    },
-    {
-        name: 'Home',
-        path: '/home',
-        component: () => import('@/views/Home.vue'),
-        meta: { index: 1 }
-    },
-    {
-        name: 'Setting',
-        path: '/setting',
-        component: () => import('../views/Setting.vue'),
-        meta: { index: 2 }
-    }
+  {
+    path: '/',
+    name: 'home',
+    component: HomeView
+  },
+  {
+    path: '/about',
+    name: 'about',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+  }
 ]
 
 const router = createRouter({
-    history: createWebHashHistory(),
-
-    routes
+  history: createWebHashHistory(),
+  routes
 })
 
-router.afterEach((to, from) => {
-    const toDepth: number = (to.meta?.index as number | null) || 0
-    const fromDepth: number = (from.meta?.index as number | null) || 0
-    to.meta.transitionName = toDepth < fromDepth ? 'zoom-out' : 'zoom-in'
-})
+router.beforeEach((to, from, next) => {
+  const title = to.meta.title || '南雍易记'; // 设置默认标题
+  if (window.Electron) {
+    window.Electron.ipcRenderer.send('update-title', title);
+  }
+  next();
+});
 
 export default router

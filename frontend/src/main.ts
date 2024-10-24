@@ -8,6 +8,8 @@ import './style/global.css'
 
 loadFonts()
 
+document.title = '南雍易记'
+
 createApp(App)
   .use(router)
   .use(store)

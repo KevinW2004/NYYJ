@@ -24,12 +24,6 @@ async function createWindow() {
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
     },
     title: '南雍易记',
-    // frame: false,
-    titleBarStyle: 'hidden',
-    titleBarOverlay: {
-      color: 'rgba(0, 0, 0, 0)',
-      symbolColor: 'white'
-    },
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -41,6 +35,7 @@ async function createWindow() {
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
+  win.setMinimumSize(800, 600)
 }
 
 // Quit when all windows are closed.

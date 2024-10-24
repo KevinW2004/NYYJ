@@ -1,36 +1,35 @@
 <style scoped>
 .head{
-    position: absolute;
-    display: flex;
-    flex-direction: row;
+    height: 100%;
     width: 100%;
-    align-items: left;
     background: linear-gradient(to right, rgb(202, 144, 223), purple);
+    display: flex;
+    align-items: center;
 }
 
 .icon {
-    position: relative;
-    width: 10px;
-    height: 30px;
+    margin-top: 5px;
+    margin-left: 15px;
+    width: 35px;
+    height: 35px;
 }
 
 .title {
-    position: relative;
-    left: 10px;
-    font-size: 24px;
+    font-size: 27px;
     font-weight: bold;
-    color: violet;
+    color: rgb(178, 92, 244);
+    margin-left: 25px;
 }
 </style>
 
 <template>
     <div class="head">
-        <v-img
-          :src="require('../assets/logo.png')"
-          cover
-          class="icon"
-          width="1"
-        />
+        <div class="icon">
+            <v-img
+            :src="require('../assets/icon.png')"
+            width="30"
+            />
+        </div>
         <h3 class="title">南雍易记</h3>
     </div>
 </template>

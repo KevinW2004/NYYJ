@@ -1,26 +1,32 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+import CourseTimetable from '../components/CourseTimetable.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: HomeView,
+    meta: { title: '主页' }
   },
   {
     path: '/about',
     name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  }
-]
+    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue'),
+    meta: { title: '关于' }
+  },
+  {
+    path: '/timetable',
+    name: 'timetable',
+    component: CourseTimetable, // 更新为新名称
+    meta: { title: '我的课表' },
+  },
+];
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes
-})
+});
 
 router.beforeEach((to, from, next) => {
   const title = to.meta.title || '南雍易记'; // 设置默认标题
@@ -28,4 +34,4 @@ router.beforeEach((to, from, next) => {
   next();
 });
 
-export default router
+export default router;

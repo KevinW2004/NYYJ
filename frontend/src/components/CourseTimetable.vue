@@ -166,6 +166,9 @@ export default {
 .course-timetable-container {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  max-width: 90%;
+  overflow: hidden;
   padding: 20px;
 }
 
@@ -206,6 +209,8 @@ export default {
   display: grid;
   grid-template-columns: 100px repeat(7, 1fr);
   gap: 5px;
+  height: 100%;
+  overflow: hidden;
 }
 
 .course-grid {
@@ -230,16 +235,16 @@ export default {
 .bg-blue { background-color: #87CEEB; }
 
 .week-selector {
-  margin-top: 20px;
+  margin-top: 10px;
   max-width: 100%;
 }
 
 .week-card {
   width: 80px;
-  height: 50px;
+  height: 100%;
   display: flex;
   text-align: center;
-  margin:5px;
+  margin-right:10px;
 }
 
 .selected-card {

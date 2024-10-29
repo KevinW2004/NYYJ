@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-layout>
+    <v-layout style="height: 100vh">
       <v-app-bar>
       <div class="custom-titlebar">
         <main-header />
@@ -31,10 +31,8 @@
           <v-list-item prepend-icon="mdi-menu" title="应用设置" value="3"></v-list-item>
         </v-list>
       </v-navigation-drawer>
-      <v-main>
-        <div class="content">
+      <v-main class="content">
           <router-view />
-        </div>
       </v-main>
     </v-layout>
   </v-app>
@@ -66,6 +64,10 @@ export default defineComponent({
 <style>
 .custom-titlebar {
   height: 100%;
+  width: 100%;
+}
+.content {
+  max-height: 100%;
   width: 100%;
 }
 </style>

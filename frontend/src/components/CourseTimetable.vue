@@ -27,7 +27,7 @@
           :class="['course-block', `bg-${course.color}`]"
           @click="showCourseDetails(course)"
         >
-          <p class="course-name">{{ course.name }}</p>
+          <p class="course-name">{{ courseInfoMap[course.key].name }}</p>
           <p class="course-room">{{ course.classroom }}</p>
         </div>
       </div>
@@ -65,8 +65,8 @@ export default {
   name: 'CourseTimetable',
   data() {
     return {
-      currentWeek: 0, // 初始化为0
-      selectedWeek: 0, // 当前选择的周数
+      currentWeek: 0,
+      selectedWeek: 0,
       totalWeeks: 17,
       weekDays: [],
       timeSlots: [
@@ -79,16 +79,20 @@ export default {
         { start: '14:50', end: '15:35' },
         { start: '15:35', end: '16:20' }
       ],
-      timetable: {},
+      courseInfos: [],
+      courseInfoMap: {}, // 用于快速查找课程信息
       currentMonth: '',
-      semesterStartDate: new Date('2024-09-01') // 硬编码的学期开始日期
+      semesterStartDate: new Date('2024-09-01')
     };
   },
 
   computed: {
     filteredCourses() {
-      return Object.values(this.timetable)
-        .flatMap(day => day.courses)
+      return this.courseInfos
+        .flatMap(courseInfo => courseInfo.courses.map(course => ({
+          ...course,
+          key: courseInfo.key
+        })))
         .filter(course => course.weeks.includes(this.selectedWeek));
     },
   },
@@ -98,7 +102,13 @@ export default {
       try {
         const response = await fetch('/course-timetable.json');
         if (!response.ok) throw new Error('Failed to load timetable');
-        this.timetable = await response.json();
+        const data = await response.json();
+        this.courseInfos = data.courseInfos;
+
+        // 创建一个课程信息映射，以便快速查找课程名称和教师
+        this.courseInfos.forEach(info => {
+          this.courseInfoMap[info.key] = info;
+        });
       } catch (error) {
         console.error(error);
       }
@@ -107,7 +117,7 @@ export default {
     selectWeek(week) {
       this.selectedWeek = week;
       this.currentWeek = week;
-      this.calculateWeekDays(); // 切换周时重新计算日期
+      this.calculateWeekDays();
     },
     
     showCourseDetails(course) {
@@ -119,7 +129,6 @@ export default {
     },
     
     calculateWeekDays() {
-      // 计算所选周的起始日期
       const startOfWeek = new Date(this.semesterStartDate);
       startOfWeek.setDate(startOfWeek.getDate() + (this.selectedWeek - 1) * 7);
 
@@ -134,22 +143,21 @@ export default {
         });
       }
 
-      // 设置当前月份显示
       this.currentMonth = startOfWeek.toLocaleString('default', { month: 'long' });
     },
     
     calculateCurrentWeek() {
       const today = new Date();
       const weeksDiff = Math.floor((today - this.semesterStartDate) / (7 * 24 * 60 * 60 * 1000));
-      this.currentWeek = weeksDiff >= 0 ? weeksDiff + 1 : 0; // 确保当前周为非负数
-      this.selectedWeek = this.currentWeek; // 设置默认选择的周为当前周
+      this.currentWeek = weeksDiff >= 0 ? weeksDiff + 1 : 0;
+      this.selectedWeek = this.currentWeek;
     }
   },
   
   mounted() {
     this.loadTimetable();
-    this.calculateCurrentWeek(); // 计算当前周数
-    this.calculateWeekDays(); // 计算当前周的日期
+    this.calculateCurrentWeek();
+    this.calculateWeekDays();
   }
 };
 </script>

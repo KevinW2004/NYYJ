@@ -1,18 +1,17 @@
 <template>
-  <hello-world />
+  <course-timetable/>
 </template>
 
 <script lang="ts">
+import CourseTimetable from '@/components/CourseTimetable.vue';
 import { defineComponent } from 'vue';
 
-// Components
-import HelloWorld from '../components/HelloWorld.vue';
 
 export default defineComponent({
   name: 'HomeView',
 
   components: {
-    HelloWorld,
+    CourseTimetable,
   },
 });
 </script>

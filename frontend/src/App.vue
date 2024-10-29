@@ -23,7 +23,10 @@
 
         <v-list density="compact" nav>
           <!-- 增加点击切换到课表的功能 -->
-          <v-list-item prepend-icon="mdi-calendar" title="我的课表" @click="navigateTo('timetable')"></v-list-item>
+          <v-list-item prepend-icon="mdi-calendar" 
+            title="我的课表" 
+            @click="navigateTo('timetable')" 
+            value="1" />
           <v-list-item prepend-icon="mdi-calendar-check" title="待办清单" value="2"></v-list-item>
           <v-list-item prepend-icon="mdi-menu" title="应用设置" value="3"></v-list-item>
         </v-list>

@@ -2,7 +2,7 @@
   <div class="course-timetable-container">
     <!-- Header: Month and Days of the Week -->
     <section class="header">
-      <div class="month">九月</div>
+      <div class="month">{{ currentMonth }}</div>
       <div v-for="(day, index) in weekDays" :key="index" class="day">
         <div class="day-name">{{ day.name }}</div>
         <div class="day-date">{{ day.date }}</div>
@@ -20,22 +20,41 @@
 
       <!-- Course Blocks for Each Day -->
       <div class="course-grid" v-for="(day, dayIndex) in weekDays" :key="dayIndex">
-        <div v-for="(course, index) in getCoursesForDay(dayIndex + 1)" :key="index"
+        <div
+          v-for="(course, index) in getCoursesForDay(dayIndex + 1)"
+          :key="index"
           :style="{ gridRow: `${course.section[0]} / span ${course.section.length}` }"
-          :class="['course-block', `bg-${course.color}`]" @click="showCourseDetails(course)">
+          :class="['course-block', `bg-${course.color}`]"
+          @click="showCourseDetails(course)"
+        >
           <p class="course-name">{{ course.name }}</p>
           <p class="course-room">{{ course.classroom }}</p>
         </div>
       </div>
     </section>
 
-    <!-- Week Selector -->
-    <div class="week-selector">
-      <span v-for="week in totalWeeks" :key="week" @click="selectWeek(week)"
-        :class="{ selected: week === currentWeek }">
-        {{ week }}周
-      </span>
-    </div>
+    <!-- Week Selector using VSlideGroup with VCard for each week -->
+    <v-slide-group
+      class="week-selector"
+      show-arrows
+      v-model="selectedWeek"
+    >
+      <v-slide-item
+        v-for="week in totalWeeks"
+        :key="week"
+        :value="week"
+      >
+        <v-card
+          outlined
+          @click="selectWeek(week)"
+          :class="{ 'selected-card': week === currentWeek }"
+          class="week-card"
+        >
+          <v-card-text v-if="week <= 9">第 {{ week }} 周</v-card-text>
+          <v-card-text v-else>第{{ week }}周</v-card-text>
+        </v-card>
+      </v-slide-item>
+    </v-slide-group>
   </div>
 </template>
 
@@ -46,17 +65,10 @@ export default {
   name: 'CourseTimetable',
   data() {
     return {
-      currentWeek: 1,
-      totalWeeks: 11,
-      weekDays: [
-        { name: '周一', date: '12' },
-        { name: '周二', date: '13' },
-        { name: '周三', date: '14' },
-        { name: '周四', date: '15' },
-        { name: '周五', date: '16' },
-        { name: '周六', date: '17' },
-        { name: '周日', date: '18' }
-      ],
+      currentWeek: 0, // 初始化为0
+      selectedWeek: 0, // 当前选择的周数
+      totalWeeks: 17,
+      weekDays: [],
       timeSlots: [
         { start: '08:15', end: '09:00' },
         { start: '09:00', end: '09:45' },
@@ -67,7 +79,9 @@ export default {
         { start: '14:50', end: '15:35' },
         { start: '15:35', end: '16:20' }
       ],
-      timetable: {}
+      timetable: {},
+      currentMonth: '',
+      semesterStartDate: new Date('2024-09-01') // 硬编码的学期开始日期
     };
   },
 
@@ -75,9 +89,10 @@ export default {
     filteredCourses() {
       return Object.values(this.timetable)
         .flatMap(day => day.courses)
-        .filter(course => course.weeks.includes(this.currentWeek));
+        .filter(course => course.weeks.includes(this.selectedWeek));
     },
   },
+  
   methods: {
     async loadTimetable() {
       try {
@@ -88,18 +103,53 @@ export default {
         console.error(error);
       }
     },
+    
     selectWeek(week) {
+      this.selectedWeek = week;
       this.currentWeek = week;
+      this.calculateWeekDays(); // 切换周时重新计算日期
     },
+    
     showCourseDetails(course) {
-      // Logic to show course details
+      // 显示课程详情的逻辑
     },
+    
     getCoursesForDay(dayIndex) {
       return this.filteredCourses.filter(course => course.day === dayIndex);
+    },
+    
+    calculateWeekDays() {
+      // 计算所选周的起始日期
+      const startOfWeek = new Date(this.semesterStartDate);
+      startOfWeek.setDate(startOfWeek.getDate() + (this.selectedWeek - 1) * 7);
+
+      this.weekDays = [];
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
+        this.weekDays.push({
+          name: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'][i],
+          date: date.getDate(),
+          month: date.getMonth() + 1
+        });
+      }
+
+      // 设置当前月份显示
+      this.currentMonth = startOfWeek.toLocaleString('default', { month: 'long' });
+    },
+    
+    calculateCurrentWeek() {
+      const today = new Date();
+      const weeksDiff = Math.floor((today - this.semesterStartDate) / (7 * 24 * 60 * 60 * 1000));
+      this.currentWeek = weeksDiff >= 0 ? weeksDiff + 1 : 0; // 确保当前周为非负数
+      this.selectedWeek = this.currentWeek; // 设置默认选择的周为当前周
     }
   },
+  
   mounted() {
     this.loadTimetable();
+    this.calculateCurrentWeek(); // 计算当前周数
+    this.calculateWeekDays(); // 计算当前周的日期
   }
 };
 </script>
@@ -172,18 +222,29 @@ export default {
 .bg-blue { background-color: #87CEEB; }
 
 .week-selector {
-  display: flex;
-  justify-content: center;
   margin-top: 20px;
+  max-width: 100%;
 }
 
-.week-selector span {
-  margin: 0 5px;
+.week-card {
+  width: 80px;
+  height: 50px;
+  display: flex;
+  text-align: center;
+  margin:5px;
+}
+
+.selected-card {
+  background-color: #42b983 !important;
+  color: white !important;
+}
+
+.week-selector .v-slide-item span {
+  padding: 0 10px;
   cursor: pointer;
 }
 
 .week-selector .selected {
   font-weight: bold;
-  color: #42b983;
 }
 </style>

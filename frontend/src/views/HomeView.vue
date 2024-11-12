@@ -49,12 +49,25 @@ export default defineComponent({
   height: 100%;
   width: 100%;
   overflow: hidden;
+  /* background: repeating-radial-gradient(circle at 5% 26%,#d1a8e2, #ee9acf, #e2c2d6 10%);  */
+  /* background: linear-gradient(135deg, #e0c3fc, #f9b9c5); */
+  /* background: linear-gradient(180deg, #f9e1f2, #d1a8e2); */
+  /* background: radial-gradient(circle, #ee9acf, #d1a8e2 60%, #e2c2d6); */
+  /* 原版粉嫩 */
+  /* background: radial-gradient(circle at 80% 70%, #d1a8e2, #ee9acf, #e5d0dd 70%); */
+  /* 加点蓝色 */
+  /* background: radial-gradient(circle at 80% 70%, #d1a8e2, #ee9acf, #e5d0dd 70%, rgba(173, 216, 230, 0.5)); */
+  /* 加点金色 */
+  /* background: radial-gradient(circle at 80% 70%, #d1a8e2, #ee9acf, #e5d0dd 70%, rgba(255, 223, 186, 0.5)); */
+  /* 蓝金混合 */
+  background: radial-gradient(circle at 20% 20%, #d1a8e2, #ee9acf, #e5d0dd 60%, rgba(173, 216, 230, 0.3), rgba(240, 179, 110, 0.4));
 }
 
 .table-container {
   height: calc(100% - 35px);
   max-height: 100%;
   width: 100%;
+  padding: 35px;
   transition: width 0.3s ease; /* 添加宽度变化的过渡效果 */
 }
 

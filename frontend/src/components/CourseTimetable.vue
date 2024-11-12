@@ -150,7 +150,7 @@
 
             <div class="form-field">
               <v-select
-                  v-model="tempSession.day"
+                  v-model="tempSession.weekDay"
                   :items="weeks"
                   label="上课星期"
                   outlined
@@ -194,7 +194,7 @@
 </template>
 
 <script>
-import {ref, computed, onMounted} from 'vue';
+// import {ref, computed, onMounted} from 'vue';
 
 export default {
   name: 'CourseTimetable',
@@ -231,7 +231,7 @@ export default {
         startWeek: null,
         endWeek: null,
         weekType: 'all',              // 默认选择全部周
-        day: null,
+        weekDay: null,
         timeSlots: [],
         location: ''
       },
@@ -300,7 +300,7 @@ export default {
         startWeek,
         endWeek,
         weekType: weekType === "单周" ? "single" : weekType === "双周" ? "double" : "all",  // 根据中文转换为内部值
-        day: session.day,
+        weekDay: session.weekDay,
         timeSlots: [...session.timeSlots],  // 深拷贝数组
         location: session.location
       };
@@ -351,7 +351,7 @@ export default {
       }
 
       // 验证上课星期
-      if (!this.tempSession.day) {
+      if (!this.tempSession.weekDay) {
         this.dayError = '请选择上课星期';
         isValid = false;
       } else {
@@ -387,7 +387,7 @@ export default {
     saveSession() {
       const session = {
         weeks: `${this.tempSession.startWeek}-${this.tempSession.endWeek} (${this.tempSession.weekType === 'single' ? '单周' : this.tempSession.weekType === 'double' ? '双周' : '全部'})`,
-        day: this.tempSession.day,
+        weekDay: this.tempSession.weekDay,
         timeSlots: this.tempSession.timeSlots,
         location: this.tempSession.location,
       };
@@ -412,7 +412,7 @@ export default {
         startWeek: null,
         endWeek: null,
         weekType: 'all',
-        day: '',
+        weekDay: '',
         timeSlot: '',
         location: ''
       };
@@ -484,9 +484,10 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-width: 90%;
+  max-width: 100%;
   overflow: hidden;
   padding: 20px;
+  background-color: rgba(250, 250, 250, 0.8);
 }
 
 /* Header Section */

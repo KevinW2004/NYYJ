@@ -412,7 +412,7 @@ export default {
         startWeek: null,
         endWeek: null,
         weekType: 'all',
-        weekDay: '',
+        weekDay: null,
         timeSlot: '',
         location: ''
       };

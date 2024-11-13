@@ -77,7 +77,7 @@
                   <v-col cols="10">
                     <p class="text-sm font-semibold">组合 {{ index + 1 }}</p>
                     <p class="text-xs mb-1">周数: {{ session.weeks }}</p>
-                    <p class="text-xs mb-1">星期: {{ session.day }}</p>
+                    <p class="text-xs mb-1">星期: {{ session.weekDay }}</p>
                     <!-- 条件检查，确保 timeSlots 存在并且是数组 -->
                     <p class="text-xs mb-1">时间:
                       {{ Array.isArray(session.timeSlots) ? session.timeSlots.join(', ') : '' }}</p>

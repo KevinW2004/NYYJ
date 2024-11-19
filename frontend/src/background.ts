@@ -3,6 +3,8 @@
 import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
+import * as fs from 'fs';
+import * as path from 'path';
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Scheme must be registered before the app is ready
@@ -21,7 +23,8 @@ async function createWindow() {
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: (process.env
           .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
-      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
+      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+      preload: path.join(__dirname, 'preload.js'), // 添加 preload.ts 文件的路径
     },
     title: '南雍易记',
   })
@@ -37,6 +40,60 @@ async function createWindow() {
   }
   win.setMinimumSize(800, 600)
 }
+
+// 创建文件夹
+ipcMain.handle('create-folder', async (event, folderPath: string) => {
+  try {
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+    }
+    return { success: true };
+  } catch (error) {
+    return { success: false, error:  (error as Error).message };
+  }
+});
+
+// 创建文件
+ipcMain.handle('create-file', async (event, filePath: string, data: any) => {
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: (error as Error).message};
+  }
+});
+
+// 保存数据到文件
+ipcMain.handle('save-data-to-file', async (event, filePath: string, data: any) => {
+  console.log('Received save-data-to-file:', filePath, data);
+
+  try {
+    if (!filePath || typeof filePath !== 'string') {
+      throw new Error('Invalid filePath');
+    }
+
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid data object');
+    }
+
+    // 获取目录路径
+    const dirPath = path.dirname(filePath);
+
+    // 检查并创建目录
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+
+    // 写入文件
+    const jsonData = JSON.stringify(data, null, 2);
+    fs.writeFileSync(filePath, jsonData, 'utf-8');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error in save-data-to-file:', error);
+    return { success: false, error: (error as Error).message };
+  }
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

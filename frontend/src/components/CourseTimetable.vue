@@ -16,10 +16,9 @@
       <!-- Time Slots on the left side -->
       <div class="time-column">
         <div v-for="(time, index) in timeSlots" :key="index" class="time-slot">
-          <span>{{ time.start }} - {{ time.end }}</span>
+          <span class="time-range">{{ time.start }} - {{ time.end }}</span>
         </div>
       </div>
-
       <!-- Course Blocks for Each Day -->
       <div class="course-grid" v-for="(day, dayIndex) in weekDays" :key="dayIndex">
         <div
@@ -206,14 +205,18 @@ export default {
       totalWeeks: 17,
       weekDays: [],
       timeSlots: [
-        {start: '08:15', end: '09:00'},
-        {start: '09:00', end: '09:45'},
-        {start: '10:05', end: '10:50'},
-        {start: '10:50', end: '11:35'},
-        {start: '13:00', end: '13:45'},
-        {start: '13:45', end: '14:30'},
-        {start: '14:50', end: '15:35'},
-        {start: '15:35', end: '16:20'}
+      { start: '08:00', end: '08:50', label: '第1节' },
+      { start: '09:00', end: '09:50', label: '第2节' },
+      { start: '10:10', end: '11:00', label: '第3节' },
+      { start: '11:10', end: '12:00', label: '第4节' },
+      { start: '14:00', end: '14:50', label: '第5节' },
+      { start: '15:00', end: '15:50', label: '第6节' },
+      { start: '16:10', end: '17:00', label: '第7节' },
+      { start: '17:10', end: '18:00', label: '第8节' },
+      { start: '18:30', end: '19:20', label: '第9节' },
+      { start: '19:30', end: '20:20', label: '第10节' },
+      { start: '20:30', end: '21:20', label: '第11节' },
+      { start: '21:30', end: '22:20', label: '第12节' }
       ],
       courseInfos: [],
       courseInfoMap: {}, // 用于快速查找课程信息
@@ -494,7 +497,7 @@ export default {
 /* Header Section */
 .header {
   display: grid;
-  grid-template-columns: 100px repeat(7, 1fr);
+  grid-template-columns: 15% repeat(7, 1fr);
   align-items: center;
   gap: 5px;
 }
@@ -526,25 +529,32 @@ export default {
   cursor: pointer;
 }
 
-/* Time Column */
 .time-column {
-  grid-row: 1 / -1;
-  width: 100px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid; /* 确保使用网格布局 */
+  grid-template-rows: repeat(12, 1fr); /* 高度与父网格行对齐 */
+  grid-row: 1 / -1; /* 覆盖整个网格的行 */
+  width: 100%; /* 自动适配 */
+  height: 100%; /* 填满父容器分配的高度 */
 }
 
+
 .time-slot {
-  padding: 10px;
-  text-align: center;
-  border-bottom: 1px solid #eaeaea;
+  display: flex; /* 只保留居中的样式 */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  border-bottom: 1px solid #eaeaea; /* 可选分隔线 */
+  height: 100%; /* 确保占据整个网格行的高度 */
+}
+.time-range {
+  color: #555; /* 浅灰色用于时间范围 */
+  font-size: 11px; /* 时间范围字体略小 */
 }
 
 /* Main Table Layout */
 .main-table {
   display: grid;
-  grid-template-columns: 100px repeat(7, 1fr);
+  grid-template-columns: 15% repeat(7, 1fr);
+  grid-template-rows: repeat(12, 1fr); 
   gap: 5px;
   height: 100%;
   overflow: hidden;
@@ -552,23 +562,26 @@ export default {
 
 /* Course Grid and Blocks */
 .course-grid {
-  display: grid;
-  grid-template-rows: repeat(8, 1fr);
+  display: grid; /* 确保使用网格布局 */
+  grid-template-rows: repeat(12, 1fr); /* 高度与父网格行对齐 */
+  grid-row: 1 / -1; /* 覆盖整个网格的行 */
   gap: 5px;
+  height: 100%;
 }
 
 .course-block {
-  display: flex;
+  display: grid;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   color: white;
+  font-size: 1.5vw;
   padding: 5px;
   border-radius: 4px;
   cursor: pointer;
   text-align: center;
+  height: 100%; 
 }
-
 /* Course Block Colors */
 .bg-orange {
   background-color: #FFA500;

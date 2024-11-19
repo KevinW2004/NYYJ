@@ -195,6 +195,7 @@
 
 <script>
 // import {ref, computed, onMounted} from 'vue';
+import {saveDataToFile} from "@/utils/file";
 
 export default {
   name: 'CourseTimetable',
@@ -309,14 +310,14 @@ export default {
     },
 
 
-    addCourse() {
-      // if (this.$refs.form.validate()) {
-      //   // 将新课程添加到 courseInfos
-      //   this.courseInfos.push({...this.newCourse});
-      //   // 重置弹窗状态和表单内容
-      //   this.resetNewCourseForm();
-      //   this.isDialogVisible = false;
-      // }
+    async addCourse() {
+      try {
+        const filePath = 'D:/TEST/courses.json'
+        await saveDataToFile(filePath, this.newCourse);
+        console.log("success")
+      } catch(error) {
+        console.error("fail:", error)
+      }
       console.log(this.newCourse)
     },
 

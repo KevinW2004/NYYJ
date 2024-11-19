@@ -29,7 +29,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const title = to.meta.title || '南雍易记'; // 设置默认标题
+  // const title = to.meta.title || '南雍易记'; 
+  const title = '南雍易记';
   document.title = title as string;
   next();
 });

@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "NYYJ-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,10 +12,10 @@
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
-  "main": "background.js",
+  "main": "background.ts",
   "dependencies": {
     "@mdi/font": "5.9.55",
-    "electron": "^33.0.2",
+    "electron": "^33.2.0",
     "roboto-fontface": "*",
     "ts-loader": "~8.2.0",
     "vue": "^3.2.13",

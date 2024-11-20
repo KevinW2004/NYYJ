@@ -194,7 +194,7 @@
 
 <script>
 // import {ref, computed, onMounted} from 'vue';
-import {saveDataToFile} from "@/utils/file";
+import {saveDataToFile, readFile} from "@/utils/file";
 
 export default {
   name: 'CourseTimetable',
@@ -205,18 +205,18 @@ export default {
       totalWeeks: 17,
       weekDays: [],
       timeSlots: [
-      { start: '08:00', end: '08:50', label: '第1节' },
-      { start: '09:00', end: '09:50', label: '第2节' },
-      { start: '10:10', end: '11:00', label: '第3节' },
-      { start: '11:10', end: '12:00', label: '第4节' },
-      { start: '14:00', end: '14:50', label: '第5节' },
-      { start: '15:00', end: '15:50', label: '第6节' },
-      { start: '16:10', end: '17:00', label: '第7节' },
-      { start: '17:10', end: '18:00', label: '第8节' },
-      { start: '18:30', end: '19:20', label: '第9节' },
-      { start: '19:30', end: '20:20', label: '第10节' },
-      { start: '20:30', end: '21:20', label: '第11节' },
-      { start: '21:30', end: '22:20', label: '第12节' }
+        {start: '08:00', end: '08:50', label: '第1节'},
+        {start: '09:00', end: '09:50', label: '第2节'},
+        {start: '10:10', end: '11:00', label: '第3节'},
+        {start: '11:10', end: '12:00', label: '第4节'},
+        {start: '14:00', end: '14:50', label: '第5节'},
+        {start: '15:00', end: '15:50', label: '第6节'},
+        {start: '16:10', end: '17:00', label: '第7节'},
+        {start: '17:10', end: '18:00', label: '第8节'},
+        {start: '18:30', end: '19:20', label: '第9节'},
+        {start: '19:30', end: '20:20', label: '第10节'},
+        {start: '20:30', end: '21:20', label: '第11节'},
+        {start: '21:30', end: '22:20', label: '第12节'}
       ],
       courseInfos: [],
       courseInfoMap: {}, // 用于快速查找课程信息
@@ -248,6 +248,7 @@ export default {
       dayError: '',
       timeSlotsError: '',
       locationError: '',
+      storePath: 'D:/TEST/courses.json',
     };
   },
 
@@ -280,16 +281,127 @@ export default {
   },
 
   methods: {
+    // 加载课程信息
+    async loadTimetable() {
+      try {
+        // const response = await fetch('/course-timetable.json');
+        // if (!response.ok) throw new Error('Failed to load timetable');
+        // const data = await response.json();
+        // this.courseInfos = data.courseInfos;
+        this.courseInfos = await readFile(this.storePath);
+
+        // 创建一个课程信息映射，以便快速查找课程名称和教师
+        this.courseInfos.forEach(info => {
+          this.courseInfoMap[info.key] = info;
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    // 新增课程
+    async addCourse() {
+      try {
+        this.transformCourseData()
+        await saveDataToFile(this.storePath, this.courseInfos);
+        this.courseInfos = await readFile(this.storePath);
+        console.log("success")
+      } catch (error) {
+        console.error("fail:", error)
+      }
+      this.isDialogVisible = false
+    },
+
     showCourseDetails(course) {
       console.log(course)
     },
 
+    // 课程转换
+    transformCourseData() {
+      // 解析周次字符串为数组
+      const parseWeeks = (weeksStr) => {
+        const result = [];
+        const ranges = weeksStr.match(/\d+-\d+|\d+/g) || [];
+        for (const range of ranges) {
+          if (range.includes('-')) {
+            const [start, end] = range.split('-').map(Number);
+            for (let i = start; i <= end; i++) {
+              result.push(i);
+            }
+          } else {
+            result.push(Number(range));
+          }
+        }
+        // 处理单双周
+        if (weeksStr.includes('单周')) {
+          return result.filter(week => week % 2 !== 0);
+        } else if (weeksStr.includes('双周')) {
+          return result.filter(week => week % 2 === 0);
+        }
+        return result;
+      };
+
+      // 将星期字符串解析为索引
+      const parseWeekDay = (weekDay) => {
+        for (let i = 0; i < this.weeks.length; i++) {
+          if (this.weeks[i] === weekDay) {
+            return i + 1;
+          }
+        }
+        return -1; // 如果未匹配，返回 -1 表示错误
+      };
+      // 将时间段解析为节次
+      const parseTimeSlots = (timeSlots) => {
+        return timeSlots.map(slot => {
+          const index = this.formattedTimeSlots.indexOf(slot);
+          return index + 1; // 节次从 1 开始
+        });
+      };
+
+      // 计算新课程的 key
+      const maxKey = this.courseInfos.reduce((max, courseInfo) => {
+        return Math.max(max, courseInfo.key);
+      }, 0);
+      const newKey = maxKey + 1;
+
+      // 转换 `sessions` 中的每一节课
+      const transformedCourses = this.newCourse.sessions.map(session => {
+        return {
+          classroom: session.location,
+          color: 'orange', // 默认颜色
+          weeks: parseWeeks(session.weeks),
+          day: parseWeekDay(session.weekDay),
+          section: parseTimeSlots(session.timeSlots)
+        };
+      });
+
+      // 构造新的课程数据
+      const newCourseData = {
+        key: newKey.toString(),
+        name: this.newCourse.name,
+        teacher: this.newCourse.teacher,
+        remark: this.newCourse.description,
+        courses: transformedCourses
+      };
+
+      // 添加到 `courseInfos`
+      this.courseInfos.push(newCourseData);
+      console.log('New course added:', newCourseData);
+      console.log(this.courseInfos)
+      this.courseInfos.forEach(info => {
+        this.courseInfoMap[info.key] = info;
+      });
+    },
+
+
+    // 打开新增课程
     openNewSessionDialog() {
       this.resetTempSession();
       this.editingIndex = null;       // 新增模式
       this.isSubDialogVisible = true; // 打开弹窗
     },
 
+    // 处理一门课的一个课时组
     editSession(index) {
       this.editingIndex = index;
       const session = this.newCourse.sessions[index];
@@ -312,16 +424,37 @@ export default {
       this.isSubDialogVisible = true;
     },
 
+    saveSession() {
+      const session = {
+        weeks: `${this.tempSession.startWeek}-${this.tempSession.endWeek} (${this.tempSession.weekType === 'single' ? '单周' : this.tempSession.weekType === 'double' ? '双周' : '全部'})`,
+        weekDay: this.tempSession.weekDay,
+        timeSlots: this.tempSession.timeSlots,
+        location: this.tempSession.location,
+      };
 
-    async addCourse() {
-      try {
-        const filePath = 'D:/TEST/courses.json'
-        await saveDataToFile(filePath, this.newCourse);
-        console.log("success")
-      } catch(error) {
-        console.error("fail:", error)
+      if (this.editingIndex !== null) {
+        // 编辑模式，更新现有组合
+        this.newCourse.sessions.splice(this.editingIndex, 1, session);
+      } else {
+        // 新增模式，添加新组合
+        this.newCourse.sessions.push(session);
       }
-      console.log(this.newCourse)
+      this.resetTempSession();
+    },
+
+    removeSession(index) {
+      this.newCourse.sessions.splice(index, 1);  // 移除指定索引的组合
+    },
+
+    resetTempSession() {
+      this.tempSession = {
+        startWeek: null,
+        endWeek: null,
+        weekType: 'all',
+        weekDay: null,
+        timeSlot: '',
+        location: ''
+      };
     },
 
     validateFields() {
@@ -386,55 +519,6 @@ export default {
         // 验证通过时保存数据并关闭弹窗
         this.saveSession();
         this.isSubDialogVisible = false;
-      }
-    },
-    saveSession() {
-      const session = {
-        weeks: `${this.tempSession.startWeek}-${this.tempSession.endWeek} (${this.tempSession.weekType === 'single' ? '单周' : this.tempSession.weekType === 'double' ? '双周' : '全部'})`,
-        weekDay: this.tempSession.weekDay,
-        timeSlots: this.tempSession.timeSlots,
-        location: this.tempSession.location,
-      };
-
-      if (this.editingIndex !== null) {
-        // 编辑模式，更新现有组合
-        this.newCourse.sessions.splice(this.editingIndex, 1, session);
-      } else {
-        // 新增模式，添加新组合
-        this.newCourse.sessions.push(session);
-      }
-      this.resetTempSession();
-    },
-
-    removeSession(index) {
-      this.newCourse.sessions.splice(index, 1);  // 移除指定索引的组合
-    },
-
-
-    resetTempSession() {
-      this.tempSession = {
-        startWeek: null,
-        endWeek: null,
-        weekType: 'all',
-        weekDay: null,
-        timeSlot: '',
-        location: ''
-      };
-    },
-
-    async loadTimetable() {
-      try {
-        const response = await fetch('/course-timetable.json');
-        if (!response.ok) throw new Error('Failed to load timetable');
-        const data = await response.json();
-        this.courseInfos = data.courseInfos;
-
-        // 创建一个课程信息映射，以便快速查找课程名称和教师
-        this.courseInfos.forEach(info => {
-          this.courseInfoMap[info.key] = info;
-        });
-      } catch (error) {
-        console.error(error);
       }
     },
 
@@ -545,6 +629,7 @@ export default {
   border-bottom: 1px solid #eaeaea; /* 可选分隔线 */
   height: 100%; /* 确保占据整个网格行的高度 */
 }
+
 .time-range {
   color: #555; /* 浅灰色用于时间范围 */
   font-size: 11px; /* 时间范围字体略小 */
@@ -554,7 +639,7 @@ export default {
 .main-table {
   display: grid;
   grid-template-columns: 15% repeat(7, 1fr);
-  grid-template-rows: repeat(12, 1fr); 
+  grid-template-rows: repeat(12, 1fr);
   gap: 5px;
   height: 100%;
   overflow: hidden;
@@ -580,8 +665,9 @@ export default {
   border-radius: 4px;
   cursor: pointer;
   text-align: center;
-  height: 100%; 
+  height: 100%;
 }
+
 /* Course Block Colors */
 .bg-orange {
   background-color: #FFA500;

@@ -28,3 +28,17 @@ export const saveDataToFile = async (filePath: string, data: any) => {
     }
 };
 
+export const readFile = async (filePath: string): Promise<any> => {
+    try {
+        const result = await (window as any).api.readFile(filePath);
+        if (!result.success) {
+            throw new Error(result.error);
+        }
+        return result.data; // 返回读取的数据
+    } catch (error) {
+        console.error('Error reading file:', error);
+        throw error;
+    }
+};
+
+

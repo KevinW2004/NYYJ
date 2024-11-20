@@ -95,6 +95,31 @@ ipcMain.handle('save-data-to-file', async (event, filePath: string, data: any) =
   }
 });
 
+// 读取文件内容
+ipcMain.handle('read-file', async (event, filePath: string) => {
+  try {
+    if (!fs.existsSync(filePath)) {
+      throw new Error('File does not exist');
+    }
+
+    const fileData = fs.readFileSync(filePath, 'utf-8');
+    let parsedData;
+
+    // 尝试解析为 JSON，如果不是 JSON 则直接返回字符串
+    try {
+      parsedData = JSON.parse(fileData);
+    } catch {
+      parsedData = fileData;
+    }
+
+    return { success: true, data: parsedData };
+  } catch (error) {
+    console.error('Error in read-file:', error);
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar

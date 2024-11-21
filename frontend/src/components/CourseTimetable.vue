@@ -189,6 +189,41 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="conflictDetected" max-width="600px">
+      <v-card class="shadow-lg rounded-lg">
+        <v-card-title class="text-lg font-semibold">
+          <span>课程冲突提示</span>
+        </v-card-title>
+        <v-card-text>
+          <p>以下课程存在时间冲突，请检查并调整课程安排：</p>
+          <v-list>
+            <v-list-item-group v-if="conflictCourses.length">
+              <v-list-item v-for="(conflict, index) in conflictCourses" :key="index">
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ conflict.course1.name }} 和 {{ conflict.course2.name }} 存在冲突
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    上课时间：{{ conflict.course1.section.join(", ") }} 和 {{ conflict.course2.section.join(", ") }}
+                    <br />
+                    地点：{{ conflict.course1.classroom }} 和 {{ conflict.course2.classroom }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+            <v-list-item v-else>
+              <v-list-item-content>
+                <v-list-item-title>没有发现课程冲突！</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn @click="closeConflictAlert" color="error">关闭</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -249,6 +284,8 @@ export default {
       timeSlotsError: '',
       locationError: '',
       storePath: 'D:/TEST/courses.json',
+      conflictDetected: false, // 是否有冲突
+      conflictCourses: [], // 存储冲突的课程
     };
   },
 
@@ -555,13 +592,49 @@ export default {
       const weeksDiff = Math.floor((today - this.semesterStartDate) / (7 * 24 * 60 * 60 * 1000));
       this.currentWeek = weeksDiff >= 0 ? weeksDiff + 1 : 0;
       this.selectedWeek = this.currentWeek;
-    }
+    },
+
+    checkCourseConflicts() {
+      this.conflictDetected = false;
+      this.conflictCourses = []; // 清空之前的冲突数据
+
+      for (let dayIndex = 1; dayIndex <= 7; dayIndex++) {
+        console.log("hello world");
+        const coursesForDay = this.getCoursesForDay(dayIndex);  // 获取某一天的所有课程
+        // 对每一天的课程进行冲突检测
+        for (let i = 0; i < coursesForDay.length; i++) {
+          const course1 = coursesForDay[i];
+          for (let j = i + 1; j < coursesForDay.length; j++) {
+            const course2 = coursesForDay[j];
+            
+
+            // 检查同一天课程的时间段是否冲突
+            for (let s1 of course1.section) {
+              for (let s2 of course2.section) {
+                if (s1 === s2) {
+                  // 如果有冲突，记录冲突的课程
+                  this.conflictDetected = true;
+                  this.conflictCourses.push({ course1, course2 });
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    closeConflictAlert() {
+      this.conflictDetected = false;
+    },
+    
   },
 
   mounted() {
     this.loadTimetable();
     this.calculateCurrentWeek();
     this.calculateWeekDays();
+    this.checkCourseConflicts();
   }
 };
 </script>
@@ -660,7 +733,7 @@ export default {
   justify-content: center;
   align-items: center;
   color: white;
-  font-size: 1.5vw;
+  font-size: 1.3vw;
   padding: 5px;
   border-radius: 4px;
   cursor: pointer;

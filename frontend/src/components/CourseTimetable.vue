@@ -97,7 +97,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn @click="addCourse" color="success">添加课程</v-btn>
-          <v-btn @click="isDialogVisible = false" color="error">取消</v-btn>
+          <v-btn @click="cancel" color="error">取消</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -310,6 +310,21 @@ export default {
         console.error("fail:", error)
       }
       this.isDialogVisible = false
+      this.resetCourse()
+    },
+
+    cancel (){
+      this.isDialogVisible = false
+      this.resetCourse()
+    },
+
+    resetCourse(){
+      this.newCourse = {
+          name: '',
+          teacher: '',
+          description: '',
+          sessions: []                  // 已添加的课时组合
+      }
     },
 
     showCourseDetails(course) {

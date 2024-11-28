@@ -249,6 +249,9 @@ export default {
       timeSlotsError: '',
       locationError: '',
       storePath: 'D:/TEST/courses.json',
+      confilctedCourses: [   //冲突的课程对
+
+      ],
     };
   },
 
@@ -265,6 +268,9 @@ export default {
       return this.timeSlots
           .map(slot => `${slot.start} - ${slot.end}`)
     },
+    filteredCurrentWeekCourses() {
+      return this.filteredCourses.filter(course => course.weeks.includes(this.currentWeek));
+    }
   },
 
   watch: {
@@ -438,7 +444,6 @@ export default {
 
       this.isSubDialogVisible = true;
     },
-
     saveSession() {
       const session = {
         weeks: `${this.tempSession.startWeek}-${this.tempSession.endWeek} (${this.tempSession.weekType === 'single' ? '单周' : this.tempSession.weekType === 'double' ? '双周' : '全部'})`,
@@ -456,11 +461,9 @@ export default {
       }
       this.resetTempSession();
     },
-
     removeSession(index) {
       this.newCourse.sessions.splice(index, 1);  // 移除指定索引的组合
     },
-
     resetTempSession() {
       this.tempSession = {
         startWeek: null,
@@ -536,7 +539,6 @@ export default {
         this.isSubDialogVisible = false;
       }
     },
-
     selectWeek(week) {
       this.selectedWeek = week;
       this.currentWeek = week;
@@ -561,7 +563,6 @@ export default {
           month: date.getMonth() + 1
         });
       }
-
       this.currentMonth = startOfWeek.toLocaleString('default', {month: 'long'});
     },
 
@@ -570,13 +571,31 @@ export default {
       const weeksDiff = Math.floor((today - this.semesterStartDate) / (7 * 24 * 60 * 60 * 1000));
       this.currentWeek = weeksDiff >= 0 ? weeksDiff + 1 : 0;
       this.selectedWeek = this.currentWeek;
-    }
+    },
+
+    isConfilcted(course1, course2) {
+      return course1.day === course2.day && course1.section.some(section => course2.section.includes(section));
+    },
+
+    checkConfilctedCourses() {
+      const courses = this.filteredCurrentWeekCourses;  //当前周的课程
+      const confilctedCourses = [];
+      for (let i = 0; i < courses.length; i++) {
+        for (let j = i + 1; j < courses.length; j++) {
+          if (this.isConfilcted(courses[i], courses[j])) {
+            confilctedCourses.push([courses[i], courses[j]]);
+          }
+        }
+      }
+      this.confilctedCourses = confilctedCourses;
+    },
   },
 
   mounted() {
     this.loadTimetable();
     this.calculateCurrentWeek();
     this.calculateWeekDays();
+    this.checkConfilctedCourses();
   }
 };
 </script>

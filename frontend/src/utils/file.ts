@@ -1,3 +1,9 @@
+export const deleteFile = async (filePath: string) => {
+    const result = await (window as any).api.deleteFile(filePath);
+    if (!result.success) {
+        throw new Error(result.error);
+    }
+};
 export const checkFileExist = async (filePath: string) => {
     const result = await (window as any).api.checkFileExist(filePath);
     if (!result.success) {

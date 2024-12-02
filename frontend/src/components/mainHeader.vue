@@ -20,6 +20,11 @@
     color: rgb(178, 92, 244);
     margin-left: 25px;
 }
+
+.title-img {
+    margin-left: 25px;
+    margin-top: 3px;
+}
 </style>
 
 <template>
@@ -27,10 +32,16 @@
         <div class="icon">
             <v-img
             :src="require('../assets/icon.png')"
-            width="30"
+            width="200"
             />
         </div>
-        <h3 class="title">南雍易记</h3>
+<!--        <h3 class="title">南雍易记</h3>-->
+        <div class="title-img">
+          <v-img
+          :src="require('../assets/南雍易记-字.png')"
+          width="150"
+          />
+        </div>
     </div>
 </template>
 

@@ -1,4 +1,4 @@
-import {checkFileExist, readFile, saveDataToFile} from "./file";
+import {checkFileExist, deleteFile, readFile, saveDataToFile} from "./file";
 
 const BASE_PATH = 'D:/NYYJ-Storage/'
 const GLOBAL_CONFIG_FILE = `${BASE_PATH}global_config.json`
@@ -9,19 +9,25 @@ interface GlobalConfig {
     currentTerm: string;
     terms: string[];
 }
+interface TermData {
+    name: string;
+    totalWeeks: number;
+    startDate: string;
+    courses: any[];
+}
 
 const DEFAULT_GLOBAL_CONFIG: GlobalConfig = {
     username: "游客",
     motto: "每天进步多一点",
     currentTerm: "新学期1",
-    terms: ["新学期1"]
+    terms: []
 };
 
 // 读取全局配置
 export const readGlobalConfig = async () => {
     if (!await checkFileExist(GLOBAL_CONFIG_FILE)) {
         await saveDataToFile(GLOBAL_CONFIG_FILE, DEFAULT_GLOBAL_CONFIG);
-        await createNewTerm({name: "新学期1", totalWeeks: 17, startDate: new Date().toISOString().split('T')[0]});
+        await createNewTerm({name: "新学期1", totalWeeks: 17, startDate: new Date().toISOString()});
     }
     const config = await readFile(GLOBAL_CONFIG_FILE);
     // return JSON.parse(config) as GlobalConfig;
@@ -52,14 +58,12 @@ export const setCurrentTerm = async (term: string) => {
 };
 
 // 读取特定学期的数据
-const readTermData = async (term: string) => {
+export const readTermData = async (term: string) => {
     const termFilePath = `${BASE_PATH}${term}.json`;
+    console.log('reading term path:', termFilePath);
     try {
-        const response = await fetch(termFilePath);
-        if (!response.ok) {
-            throw new Error(`Failed to read term data for ${term}`);
-        }
-        return await response.json();
+        const response = await readFile(termFilePath)
+        return response as TermData;
     } catch (error) {
         console.error(`Error reading term data for ${term}:`, error);
         throw error;
@@ -67,7 +71,7 @@ const readTermData = async (term: string) => {
 };
 
 // 保存特定学期的数据
-const saveTermData = async (term: string, data: any) => {
+export const saveTermData = async (term: string, data: any) => {
     const termFilePath = `${BASE_PATH}${term}.json`;
     try {
         await saveDataToFile(termFilePath, data);
@@ -80,6 +84,7 @@ const saveTermData = async (term: string, data: any) => {
 // 读取当前学期的数据
 export const readCurrentTermData = async () => {
     const currentTerm = await getCurrentTerm();
+    console.log('reading currentTerm:', currentTerm);
     return await readTermData(currentTerm);
 };
 
@@ -98,10 +103,38 @@ export const createNewTerm = async (termData: any) => {
     const newTermData = {
         name: term,
         totalWeeks: termData.totalWeeks || 17,
-        startDate: termData.startDate || new Date().toISOString().split('T')[0], // 获取当天日期
+        // startDate: termData.startDate || new Date().toISOString().split('T')[0],
+        startDate: termData.startDate || new Date().toISOString(),
         courses:  termData.courses || []
     };
     await saveTermData(term, newTermData); // 创建新学期数据文件
     return newTermData;
 }
 
+// 删除学期
+export const deleteTerm = async (term: string) => {
+    const config = await readGlobalConfig();
+    const index = config.terms.indexOf(term);
+    if (index !== -1) {
+        config.terms.splice(index, 1); // 删除学期
+        if (config.currentTerm === term) {
+            config.currentTerm = config.terms[0] || '新学期1'; // 设置为第一个学期
+        }
+        await writeGlobalConfig(config); // 写回配置文件
+        const termFilePath = `${BASE_PATH}${term}.json`;
+        await checkFileExist(termFilePath) && await deleteFile(termFilePath);
+    }
+};
+
+// 获取当前学期的 courses 数据
+export const getCourses = async () => {
+    const termData = await readCurrentTermData();
+    return termData.courses;
+};
+
+// 保存当前学期的 courses 数据
+export const saveCourses = async (courses: any) => {
+    const termData = await readCurrentTermData();
+    termData.courses = courses;
+    await saveCurrentTermData(termData);
+};

@@ -15,8 +15,10 @@
       :image="drawerBackground"
       >
         <v-list>
-          <v-list-item prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg" subtitle="221250000@smail.nju.edu.cn"
-            title="Kevin W"></v-list-item>
+<!--          <v-list-item prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg" subtitle="221250000@smail.nju.edu.cn"-->
+<!--            title="Kevin W"></v-list-item>-->
+          <v-list-item :prepend-avatar="avatar" :subtitle="motto"
+           :title="username"></v-list-item>
         </v-list>
 
         <v-divider></v-divider>
@@ -39,17 +41,36 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import {defineComponent, ref} from 'vue';
 import mainHeader from './components/mainHeader.vue';
 import  drawerBackground  from "@/assets/bg.jpg";
+import avatar from "@/assets/avatar4.png"
+import {readGlobalConfig} from "@/utils/storage";
 
 export default defineComponent({
   components: { mainHeader },
   name: 'App',
 
+  setup() {
+    const username = ref('游客')
+    const motto = ref('欢迎使用南雍易记')
+    return {
+      username,
+      motto,
+    }
+  },
+
   data() {
     return {
-      drawerBackground
+      drawerBackground,
+      avatar,
+    }
+  },
+  async mounted() {
+    const global_config = await readGlobalConfig()
+    if (global_config) {
+      this.username = global_config.username
+      this.motto = global_config.motto
     }
   },
 

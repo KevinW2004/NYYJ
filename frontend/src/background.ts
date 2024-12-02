@@ -51,6 +51,16 @@ ipcMain.handle('check-file-exist', async (event, filePath: string) => {
   }
 });
 
+// 删除文件
+ipcMain.handle('delete-file', async (event, filePath: string) => {
+  try {
+    fs.unlinkSync(filePath);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
 // 创建文件夹
 ipcMain.handle('create-folder', async (event, folderPath: string) => {
   try {

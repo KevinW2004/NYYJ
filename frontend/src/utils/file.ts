@@ -1,3 +1,11 @@
+export const checkFileExist = async (filePath: string) => {
+    const result = await (window as any).api.checkFileExist(filePath);
+    if (!result.success) {
+        throw new Error(result.error);
+    }
+    return result.exists;
+};
+
 export const createFolder = async (folderPath: string) => {
     const result = await (window as any).api.createFolder(folderPath);
     if (!result.success) {

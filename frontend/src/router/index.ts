@@ -10,10 +10,10 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: '主页' }
   },
   {
-    path: '/about',
-    name: 'about',
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue'),
-    meta: { title: '关于' }
+    path: '/settings',
+    name: 'settings',
+    component: () => import('../views/SettingsView.vue'),
+    meta: { title: '设置' }
   },
   {
     path: '/timetable',

@@ -591,6 +591,7 @@ export default {
   overflow: hidden;
   padding: 20px;
   background-color: rgba(250, 250, 250, 0.8);
+  border-radius: 20px;
 }
 
 /* Header Section */

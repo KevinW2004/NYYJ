@@ -69,6 +69,7 @@ export default defineComponent({
   width: 100%;
   padding: 35px;
   transition: width 0.3s ease; /* 添加宽度变化的过渡效果 */
+  border-radius: 100px;
 }
 
 .table-container.compressed {

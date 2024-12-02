@@ -15,8 +15,8 @@ protocol.registerSchemesAsPrivileged([
 async function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
     autoHideMenuBar: true,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
@@ -38,8 +38,18 @@ async function createWindow() {
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
-  win.setMinimumSize(800, 600)
+  win.setMinimumSize(1200, 800)
+  win.setMaximumSize(1200, 800)
 }
+
+// 判断文件路径是否存在
+ipcMain.handle('check-file-exist', async (event, filePath: string) => {
+  try {
+    return {success: true, exists: fs.existsSync(filePath)}
+  } catch (error) {
+    return {success: false, error: (error as Error).message};
+  }
+});
 
 // 创建文件夹
 ipcMain.handle('create-folder', async (event, folderPath: string) => {

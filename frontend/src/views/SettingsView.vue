@@ -36,8 +36,8 @@
         <v-card-text>
           <v-text-field v-model="newTermName" label="学期名称" required
                         :rules="[rules.required]"></v-text-field>
-          <h4> 开课日期 </h4>
-          <v-date-picker v-model="startDate" label="开课时间" required></v-date-picker>
+          <h4> 开课日期（仅限周一） </h4>
+          <v-date-picker v-model="startDate" label="开课时间" required :allowed-dates="allowedDates" color="purple"></v-date-picker>
           <v-text-field v-model="totalWeeks" label="总周数" type="number" required
                         :rules="[rules.required]"></v-text-field>
         </v-card-text>
@@ -56,8 +56,8 @@
         </v-card-title>
         <v-card-text>
           <v-text-field v-model="newTermName" label="学期名称" required :rules="[rules.required]"></v-text-field>
-          <h4> 开课日期 </h4>
-          <v-date-picker v-model="startDate" label="开课时间" required></v-date-picker>
+          <h4> 开课日期（仅限周一） </h4>
+          <v-date-picker v-model="startDate" label="开课时间" required :allowed-dates="allowedDates" color="purple"></v-date-picker>
           <v-text-field v-model="totalWeeks" label="总周数" type="number" required :rules="[rules.required]"></v-text-field>
         </v-card-text>
         <v-card-actions>
@@ -95,6 +95,11 @@ export default {
 
     const rules = {
       required: (v) => !!v || '此项为必填项',
+    };
+    // 允许的日期函数：检查日期是否为周一
+    const allowedDates = (date) => {
+      const day = new Date(date).getUTCDay(); // 获取日期的星期几
+      return day === 0; // 0 代表星期一
     };
 
     const loadSettings = async () => {
@@ -202,6 +207,7 @@ export default {
       saveNewTerm,
       saveEditTerm,
       deleteCurrentTerm,
+      allowedDates,
     };
   },
 };

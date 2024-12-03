@@ -34,6 +34,13 @@
       </div>
     </section>
 
+    <!-- Course Details Sidebar -->
+    <CourseDetailSidebar
+        :courseInfo="selectedCourseInfo"
+        :isVisible="isSidebarVisible"
+        @close="closeSidebar"
+    />
+
     <!-- Week Selector using VSlideGroup with VCard for each week -->
     <v-slide-group
         class="week-selector"
@@ -195,8 +202,12 @@
 <script>
 // import {ref, computed, onMounted} from 'vue';
 import {saveDataToFile, readFile} from "@/utils/file";
+import CourseDetailSidebar from "@/components/CourseDetailSidebar.vue";
 
 export default {
+  components: {
+    CourseDetailSidebar,
+  },
   name: 'CourseTimetable',
   data() {
     return {
@@ -249,6 +260,9 @@ export default {
       timeSlotsError: '',
       locationError: '',
       storePath: 'D:/TEST/courses.json',
+      // 详细信息
+      selectedCourseInfo: null,
+      isSidebarVisible: false,
     };
   },
 
@@ -328,7 +342,12 @@ export default {
     },
 
     showCourseDetails(course) {
-      console.log(course)
+      const courseInfo = this.courseInfoMap[course.key]
+      this.selectedCourseInfo = courseInfo
+      this.isSidebarVisible = true
+    },
+    closeSidebar() {
+      this.isSidebarVisible = false
     },
 
     // 课程转换

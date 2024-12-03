@@ -1,7 +1,13 @@
 <template>
   <transition name="slide-right">
     <div v-if="isVisible" class="course-details-sidebar">
-      <v-btn @click="close" color="red" class="close-btn">关闭</v-btn>
+      <v-row class="btn-row">
+<!--        编辑按钮-->
+        <v-btn icon="mdi-pencil" color="grey" size="small" style="margin-right: 10px;"/>
+<!--        关闭按钮-->
+        <v-btn @click="close" color="green"
+        icon="mdi-arrow-right-bold" size="small"/>
+      </v-row>
 
       <!-- 课程名居中显示 -->
       <h1 class="course-name">{{ courseInfo.name }}</h1>
@@ -116,14 +122,14 @@ export default {
   transform: translateX(0);
 }
 
-/* 关闭按钮样式 */
-.close-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  font-size: 14px;
-  padding: 5px 10px;
+.btn-row {
+  max-height: 40px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 15px;
 }
+
 
 /* 课程名居中 */
 .course-name {

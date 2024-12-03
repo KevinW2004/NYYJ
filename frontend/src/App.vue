@@ -14,24 +14,31 @@
       permanent
       :image="drawerBackground"
       >
+        <v-card class="nav-list-container">
         <v-list>
 <!--          <v-list-item prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg" subtitle="221250000@smail.nju.edu.cn"-->
 <!--            title="Kevin W"></v-list-item>-->
           <v-list-item :prepend-avatar="avatar" :subtitle="motto"
-           :title="username"></v-list-item>
+           >
+            <template #title><h3>{{ username }}</h3></template>
+          </v-list-item>
         </v-list>
 
         <v-divider></v-divider>
 
         <v-list density="compact" nav>
-          <!-- 增加点击切换到课表的功能 -->
           <v-list-item prepend-icon="mdi-calendar"
-            title="我的课表"
-            @click="navigateTo('home')"
-            value="1" />
-          <v-list-item prepend-icon="mdi-calendar-check" title="待办清单" value="2"></v-list-item>
-          <v-list-item prepend-icon="mdi-menu" title="应用设置" value="3" @click="navigateTo('settings')" ></v-list-item>
+            @click="navigateTo('home')" value="1" >
+            <template #title><h3>我的课表</h3></template>
+          </v-list-item>
+          <v-list-item prepend-icon="mdi-calendar-check" value="2">
+            <template #title><h3>待办清单</h3></template>
+          </v-list-item>
+          <v-list-item prepend-icon="mdi-menu" value="3" @click="navigateTo('settings')" >
+            <template #title><h3>应用设置</h3></template>
+          </v-list-item>
         </v-list>
+        </v-card>
       </v-navigation-drawer>
       <v-main class="content">
           <router-view />
@@ -90,5 +97,9 @@ export default defineComponent({
 .content {
   max-height: 100%;
   width: 100%;
+}
+.nav-list-container {
+  background: rgba(228, 207, 252, 0.6);
+  height: 100%;
 }
 </style>

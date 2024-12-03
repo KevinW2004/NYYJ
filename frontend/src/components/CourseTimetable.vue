@@ -202,6 +202,7 @@
 <script>
 // import {ref, computed, onMounted} from 'vue';
 import {saveDataToFile, readFile} from "@/utils/file";
+import {getCourses, saveCourses} from "@/utils/storage";
 import CourseDetailSidebar from "@/components/CourseDetailSidebar.vue";
 
 export default {
@@ -302,13 +303,16 @@ export default {
         // if (!response.ok) throw new Error('Failed to load timetable');
         // const data = await response.json();
         // this.courseInfos = data.courseInfos;
-        this.courseInfos = await readFile(this.storePath);
-
+        // this.courseInfos = await readFile(this.storePath);
+        // console.log(getCourses())
+        this.courseInfos = await getCourses()
+        // console.log(this.courseInfos)
         // 创建一个课程信息映射，以便快速查找课程名称和教师
         this.courseInfos.forEach(info => {
           this.courseInfoMap[info.key] = info;
         });
       } catch (error) {
+        console.log("错啦")
         console.error(error);
       }
     },
@@ -317,8 +321,10 @@ export default {
     async addCourse() {
       try {
         this.transformCourseData()
-        await saveDataToFile(this.storePath, this.courseInfos);
-        this.courseInfos = await readFile(this.storePath);
+        // await saveDataToFile(this.storePath, this.courseInfos);
+        await saveCourses(this.courseInfos)
+        // this.courseInfos = await readFile(this.storePath);
+        this.courseInfos = await getCourses()
         console.log("success")
       } catch (error) {
         console.error("fail:", error)

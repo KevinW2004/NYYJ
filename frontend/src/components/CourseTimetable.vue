@@ -418,11 +418,23 @@ export default {
       }, 0);
       const newKey = maxKey + 1;
 
+      // 颜色数组
+      const colorClasses = [
+        'orange',
+        'blue',
+        'green',
+        'red',
+        'purple',
+        'yellow',
+        'pink',
+        'teal',
+        'gray',
+      ];
       // 转换 `sessions` 中的每一节课
       const transformedCourses = this.newCourse.sessions.map(session => {
         return {
           classroom: session.location,
-          color: 'orange', // 默认颜色
+          color: colorClasses[Math.floor(Math.random() * colorClasses.length)], 
           weeks: parseWeeks(session.weeks),
           day: parseWeekDay(session.weekDay),
           section: parseTimeSlots(session.timeSlots)
@@ -629,7 +641,6 @@ export default {
   max-width: 100%;
   overflow: hidden;
   padding: 20px;
-  background-color: rgba(250, 250, 250, 0.8);
   border-radius: 20px;
   transition: width 0.3s ease;
 }
@@ -744,6 +755,35 @@ export default {
 .bg-blue {
   background-color: #87CEEB;
 }
+
+.bg-green {
+  background-color: #32CD32; 
+}
+
+.bg-red {
+  background-color: #FF6347; 
+}
+
+.bg-purple {
+  background-color: #9370DB; 
+}
+
+.bg-yellow {
+  background-color: #FFD700; 
+}
+
+.bg-pink {
+  background-color: #FF69B4; 
+}
+
+.bg-teal {
+  background-color: #20B2AA; 
+}
+
+.bg-gray {
+  background-color: #B0C4DE; 
+}
+
 
 /* Week Selector */
 .week-selector {

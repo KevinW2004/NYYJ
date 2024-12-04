@@ -14,6 +14,7 @@ interface TermData {
     totalWeeks: number;
     startDate: string;
     courses: any[];
+    
 }
 
 const DEFAULT_GLOBAL_CONFIG: GlobalConfig = {

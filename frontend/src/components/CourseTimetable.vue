@@ -66,8 +66,8 @@
       <!-- 第一个弹窗: 添加课程 -->
       <v-dialog v-model="isDialogVisible" max-width="600px">
         <v-card class="edit-course__box shadow-lg rounded-lg">
-          <v-card-title class="text-lg font-semibold">
-            <span>添加课程</span>
+          <v-card-title class="text-lg font-semibold" style="background: #9370DB">
+            <h3 style="color: white">添加课程</h3>
           </v-card-title>
           <v-card-text>
             <v-form ref="form" v-model="isFormValid" class="space-y-4">
@@ -111,8 +111,8 @@
       <!-- 第二个弹窗: 配置组合A -->
       <v-dialog v-model="isSubDialogVisible" max-width="500px">
         <v-card class="configure-session__box shadow-lg rounded-lg">
-          <v-card-title class="text-lg font-semibold">
-            <span>配置课时组合</span>
+          <v-card-title class="text-lg font-semibold" style="background: #9370DB">
+            <h3 style="color: white">配置课时组合</h3>
           </v-card-title>
           <v-card-text>
             <v-form ref="subForm" class="space-y-4">
@@ -144,6 +144,7 @@
                     label="周数类型"
                     outlined
                     required
+                    inline
                     class="label-styled"
                 >
                   <v-radio label="全部" value="all"></v-radio>

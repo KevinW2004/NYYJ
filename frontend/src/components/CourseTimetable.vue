@@ -11,7 +11,10 @@
           <div class="day-date">{{ day.date }}</div>
         </div>
         <!-- 添加课程按钮 -->
-        <button v-if="!isSidebarVisible" class="add-course-button" @click="isDialogVisible = true">+</button>
+        <transition name="button-fade">
+        <button class="add-course-button" @click="isDialogVisible = true"
+        v-if="!isSidebarVisible">+</button>
+        </transition>
       </section>
 
       <!-- Main Course Table -->
@@ -666,6 +669,19 @@ export default {
 </script>
 
 <style scoped>
+/* 渐变 Styles */
+.button-fade-enter-active,
+.button-fade-leave-active {
+  transition: all 0.5s ease;
+}
+.button-fade-enter-from {
+  transform: translateX(100%); /* 从右侧进入 */
+  opacity: 1; /* 初始透明度 */
+}
+.button-fade-leave-to {
+  transform: translateX(100%); /* 向右移动 */
+  opacity: 1; /* 结束透明度 */
+}
 /* Container Styles */
 .course-timetable-container {
   display: flex;

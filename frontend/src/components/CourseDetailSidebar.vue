@@ -76,6 +76,7 @@
 </template>
 
 <script>
+import backgroundImg from '@/assets/blue-bg.jpg'
 export default {
   props: {
     courseInfo: Object,
@@ -83,6 +84,7 @@ export default {
   },
   data() {
     return {
+      backgroundImg,
       isDetailsVisible: false, // 控制课时信息的显示/隐藏
       editMode: false, // 控制编辑模式
       editableCourseInfo: {...this.courseInfo}, // 存储可编辑的课程信息副本
@@ -215,8 +217,10 @@ export default {
   right: 0;
   width: 25%;
   height: 100%;
-  background-color: #f9f9f9;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  //background: url("@/assets/blue-bg.jpg");
+  background: rgba(128, 0, 128, 0.15) ;
+  background-size: cover;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
   z-index: 1000;
   padding: 20px;
   display: flex;

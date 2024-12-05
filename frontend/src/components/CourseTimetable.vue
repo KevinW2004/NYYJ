@@ -753,16 +753,22 @@ export default {
 
 .course-block {
   display: grid;
-  flex-direction: column;
+  //flex-direction: column;
   justify-content: center;
   align-items: center;
   color: white;
-  font-size: 1.5vw;
   padding: 5px;
   border-radius: 4px;
   cursor: pointer;
   text-align: center;
-  height: 100%;
+  max-height: 100%;
+  max-width: 100%;
+}
+.course-name {
+  font-size: min(1.5em, 1.2vw);
+}
+.course-room {
+  font-size: min(1em, 1.0vw);
 }
 
 /* Course Block Colors */

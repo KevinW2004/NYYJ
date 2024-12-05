@@ -39,7 +39,6 @@ async function createWindow() {
     win.loadURL('app://./index.html')
   }
   win.setMinimumSize(1200, 800)
-  win.setMaximumSize(1200, 800)
 }
 
 // 判断文件路径是否存在

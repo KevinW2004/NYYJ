@@ -676,11 +676,11 @@ export default {
 }
 .button-fade-enter-from {
   transform: translateX(100%); /* 从右侧进入 */
-  opacity: 1; /* 初始透明度 */
+  opacity: 0.1; /* 初始透明度 */
 }
 .button-fade-leave-to {
-  transform: translateX(130%); /* 向右移动 */
-  opacity: 1; /* 结束透明度 */
+  transform: translateX(125%); /* 向右移动 */
+  opacity: 0; /* 结束透明度 */
 }
 /* Container Styles */
 .course-timetable-container {

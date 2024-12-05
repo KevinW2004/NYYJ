@@ -43,7 +43,9 @@
 </template>
 
 <script>
+import { saveDataToFile, readFile } from "@/utils/file";
 export default {
+  name: 'AddTodo',
   data() {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
@@ -56,7 +58,8 @@ export default {
       desc: '',
       statusOptions: ['未完成', '已完成'],
       date: formattedDate,
-      status: 0
+      status: 0,
+      storePath: 'D:/TEST/courses.json',
     };
   },
   methods: {
@@ -84,13 +87,22 @@ export default {
         return;
       }
 
-      // Add your database logic here
-      // Example:
-      // await this.$store.dispatch('addTodo', { title: this.title, desc: this.desc, date: this.date, status: this.status });
+      const newTodo = {
+        title: this.title,
+        desc: this.desc,
+        date: this.date,
+        status: this.status,
+      };
 
-      alert('新建待办成功！');
-      this.resetTodo();
-      this.$router.go(-1);
+      try {
+        await saveDataToFile(this.storePath, this.newTodo);
+        alert('新建待办成功！');
+        this.resetTodo();
+        this.$router.go(-1);
+      } catch (error) {
+        console.error("保存失败：", error);
+        alert('保存失败，请稍后重试');
+      }
     }
   }
 };

@@ -2,6 +2,9 @@
   <transition name="slide-fade">
     <div v-if="isVisible" class="course-details-sidebar">
       <v-row class="btn-row">
+        <v-btn icon="mdi-delete" color="red" size="small" style="margin-right: 100px;" @click.stop="removeCourse">
+          <v-icon color="white"></v-icon>
+        </v-btn>
         <!-- 编辑按钮 -->
         <v-btn icon="mdi-pencil" color="grey" size="small" style="margin-right: 10px;" @click="edit"/>
         <!-- 关闭按钮 -->
@@ -195,6 +198,11 @@ export default {
       this.editableCourseInfo.courses = transformedCourses
       this.$emit('update-course', this.editableCourseInfo)
       this.editMode = !this.editMode
+    },
+
+    removeCourse() {
+      this.$emit('remove-course', this.courseInfo)
+
     }
   }
 };

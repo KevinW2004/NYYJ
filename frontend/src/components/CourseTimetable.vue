@@ -200,6 +200,7 @@
         :isVisible="isSidebarVisible"
         @close="closeSidebar"
         @update-course="updateSelectedCourseInfo"
+        @remove-course="removeCourse"
     />
 
   </div>
@@ -339,6 +340,20 @@ export default {
       }
       this.isDialogVisible = false
       this.resetCourse()
+    },
+
+    async removeCourse(course) {
+      for (let i = 0; i < this.courseInfos.length; i++) {
+        if (this.courseInfos[i].key === course.key) {
+          this.courseInfos.splice(i, 1)
+          break
+        }
+      }
+      await saveCourses(this.courseInfos)
+      this.courseInfos.forEach(info => {
+        this.courseInfoMap[info.key] = info;
+      });
+      this.closeSidebar()
     },
 
     cancel() {

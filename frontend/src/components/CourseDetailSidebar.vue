@@ -1,9 +1,9 @@
 <template>
-  <transition name="slide-right">
+  <transition name="slide-fade">
     <div v-if="isVisible" class="course-details-sidebar">
       <v-row class="btn-row">
         <!-- 编辑按钮 -->
-        <v-btn icon="mdi-pencil" color="grey" size="small" style="margin-right: 10px;" @click="editMode = !editMode"/>
+        <v-btn icon="mdi-pencil" color="grey" size="small" style="margin-right: 10px;" @click="edit"/>
         <!-- 关闭按钮 -->
         <v-btn @click="close" color="green" icon="mdi-arrow-right-bold" size="small"/>
       </v-row>
@@ -27,46 +27,45 @@
       </div>
 
       <!-- 课时信息 (可展开/隐藏) -->
-      <div
-          v-if="isDetailsVisible && Array.isArray(courseInfo.session_for_show) && courseInfo.session_for_show.length > 0"
-          class="course-sessions">
-        <div v-for="(course, index) in courseInfo.session_for_show" :key="index" class="course-session">
-          <h3>课时 {{ index + 1 }}</h3>
-          <div class="session-details">
-            <p><strong>地点：</strong>
-              <span v-if="!editMode">{{ course.location }}</span>
-              <v-text-field v-else v-model="editableCourseInfo.session_for_show[index].location" label="地点" dense outlined/>
-            </p>
-            <p><strong>上课周数：</strong>
-              <span v-if="!editMode">{{ course.weeks }}</span>
-
-              <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].startWeek" :items="weekNumbers" label="开始周" dense outlined></v-select>
-
-              <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].endWeek" :items="weekNumbers" label="结束周" dense outlined></v-select>
-
-              <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].weekType" :items="weekTypes" label="周次类型" dense outlined></v-select>
-            </p>
-            <p><strong>星期：</strong>
-              <span v-if="!editMode">{{ course.weekDay }}</span>
-              <v-select v-else v-model="editableCourseInfo.session_for_show[index].weekDay" :items="weekDays"
-                        label="星期" dense outlined/>
-            </p>
-            <p><strong>节次：</strong>
-              <span v-if="!editMode">{{ course.timeSlots.join(', ') }}</span>
-              <v-select v-else v-model="editableCourseInfo.session_for_show[index].timeSlots" :items="timeSlots"
-                        label="节次" multiple dense outlined/>
-            </p>
+      <transition name="expand-fade">
+        <div v-if="isDetailsVisible && Array.isArray(courseInfo.session_for_show) && courseInfo.session_for_show.length > 0"
+             class="course-sessions">
+          <div v-for="(course, index) in courseInfo.session_for_show" :key="index" class="course-session">
+            <h3>课时 {{ index + 1 }}</h3>
+            <div class="session-details">
+              <p><strong>地点：</strong>
+                <span v-if="!editMode">{{ course.location }}</span>
+                <v-text-field v-else v-model="editableCourseInfo.session_for_show[index].location" label="地点" dense outlined/>
+              </p>
+              <p><strong>上课周数：</strong>
+                <span v-if="!editMode">{{ course.weeks }}</span>
+                <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].startWeek" :items="weekNumbers" label="开始周" dense outlined></v-select>
+                <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].endWeek" :items="weekNumbers" label="结束周" dense outlined></v-select>
+                <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].weekType" :items="weekTypes" label="周次类型" dense outlined></v-select>
+              </p>
+              <p><strong>星期：</strong>
+                <span v-if="!editMode">{{ course.weekDay }}</span>
+                <v-select v-else v-model="editableCourseInfo.session_for_show[index].weekDay" :items="weekDays"
+                          label="星期" dense outlined/>
+              </p>
+              <p><strong>节次：</strong>
+                <span v-if="!editMode">{{ course.timeSlots.join(', ') }}</span>
+                <v-select v-else v-model="editableCourseInfo.session_for_show[index].timeSlots" :items="timeSlots"
+                          label="节次" multiple dense outlined/>
+              </p>
+            </div>
           </div>
         </div>
+      </transition>
+
+      <!-- 仅显示文本和尖角 -->
+      <div @click="toggleCourseDetails" class="toggle-text" v-if="!editMode">
+        {{ isDetailsVisible ? '收起课时信息' : '展开课时信息' }}
+        <v-icon class="ml-1">{{ isDetailsVisible ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
       </div>
 
-      <!-- 展开/收起按钮 -->
-      <v-btn @click="toggleCourseDetails" class="toggle-btn">
-        {{ isDetailsVisible ? '收起课时信息' : '展开课时信息' }}
-      </v-btn>
-
       <!-- 保存按钮 -->
-      <v-btn v-if="editMode" @click="saveChanges" class="save-btn" color="blue" block>
+      <v-btn v-if="editMode" @click="saveChanges" class="save-btn" color="blue">
         保存修改
       </v-btn>
     </div>
@@ -127,14 +126,18 @@ export default {
     },
   },
   methods: {
+    edit() {
+      this.editMode = !this.editMode
+      if (this.editMode) {
+        this.isDetailsVisible = true
+      }
+    },
     close() {
       this.$emit('close');
       this.isDetailsVisible = false;
     },
     toggleCourseDetails() {
       this.isDetailsVisible = !this.isDetailsVisible;
-      this.editableCourseInfo = this.courseInfo
-      console.log(this.editableCourseInfo)
     },
 
     generateWeeks(startWeek, endWeek, weekType) {
@@ -214,19 +217,35 @@ export default {
 }
 
 /* 动画效果 */
-.slide-right-enter-active,
-.slide-right-leave-active {
+.slide-fade-enter-active,
+.slide-fade-leave-active {
   transition: transform 0.3s ease;
 }
 
-.slide-right-enter-from,
-.slide-right-leave-to {
+.slide-fade-enter-from,
+.slide-fade-leave-to {
   transform: translateX(100%);
 }
 
-.slide-right-enter-to,
-.slide-right-leave-from {
+.slide-fade-enter-to,
+.slide-fade-leave-from {
   transform: translateX(0);
+}
+
+.expand-fade-enter-active,
+.expand-fade-leave-active {
+  transition: max-height 0.3s ease-out;
+  overflow: hidden;
+}
+
+.expand-fade-enter-from,
+.expand-fade-leave-to {
+  max-height: 0;
+}
+
+.expand-fade-enter-to,
+.expand-fade-leave-from {
+  max-height: 500px;
 }
 
 .btn-row {
@@ -237,8 +256,6 @@ export default {
   padding-right: 15px;
 }
 
-
-/* 课程名居中 */
 .course-name {
   text-align: center;
   font-size: 24px;
@@ -257,14 +274,6 @@ export default {
 
 .course-info p {
   margin: 5px 0;
-}
-
-/* 展开按钮 */
-.toggle-btn {
-  margin: 10px 0;
-  align-self: center;
-  background-color: #3f51b5;
-  color: white;
 }
 
 /* 课时信息样式 */
@@ -290,9 +299,14 @@ export default {
   color: #3f51b5;
 }
 
-.save-btn {
-  margin-top: 20px;
-  background-color: #4caf50;
-  color: white;
+/* 展开/收起按钮的样式 */
+.toggle-text {
+  cursor: pointer;
+  font-size: 14px;
+  color: #3f51b5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
 }
 </style>

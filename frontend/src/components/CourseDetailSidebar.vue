@@ -23,7 +23,7 @@
           <span v-if="!editMode">{{ courseInfo.teacher }}</span>
           <v-text-field v-else v-model="editableCourseInfo.teacher" label="教师" dense outlined/>
         </p>
-        <p><strong>课程描述：</strong>
+        <p><strong>课程备注：</strong>
           <span v-if="!editMode">{{ courseInfo.remark }}</span>
           <v-textarea v-else v-model="editableCourseInfo.remark" label="课程描述" dense outlined/>
         </p>

@@ -44,7 +44,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn @click="closeNewTermDialog" color="grey">取消</v-btn>
-          <v-btn @click="saveNewTerm" color="primary">保存</v-btn>
+          <v-btn @click="saveNewTerm" color="white">保存</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -63,7 +63,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn @click="editTermDialog = false" color="grey">取消</v-btn>
-          <v-btn @click="saveEditTerm" color="primary">保存</v-btn>
+          <v-btn @click="saveEditTerm" color="white">保存</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

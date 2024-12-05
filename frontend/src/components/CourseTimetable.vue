@@ -73,7 +73,7 @@
             <v-form ref="form" v-model="isFormValid" class="space-y-4">
               <v-text-field v-model="newCourse.name" label="课程名称" outlined required></v-text-field>
               <v-text-field v-model="newCourse.teacher" label="教师名字" outlined required></v-text-field>
-              <v-textarea v-model="newCourse.description" label="详细描述" outlined></v-textarea>
+              <v-textarea v-model="newCourse.description" label="课程备注" outlined></v-textarea>
 
               <!-- 组合列表，美化部分 -->
               <div v-for="(session, index) in newCourse.sessions" :key="index" class="session-card">

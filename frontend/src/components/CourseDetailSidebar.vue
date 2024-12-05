@@ -24,8 +24,8 @@
           <v-text-field v-else v-model="editableCourseInfo.teacher" label="教师" dense outlined/>
         </p>
         <p><strong>课程备注：</strong>
-          <span v-if="!editMode">{{ courseInfo.remark }}</span>
-          <v-textarea v-else v-model="editableCourseInfo.remark" label="课程描述" dense outlined/>
+          <span v-if="!editMode" style="white-space: pre-wrap;">{{ courseInfo.remark }}</span>
+          <v-textarea v-else v-model="editableCourseInfo.remark" label="课程描述" style="white-space: pre-wrap;" dense outlined />
         </p>
       </div>
 
@@ -112,6 +112,7 @@ export default {
       if (newVal === true) {
         // 当 isVisible 从 false 变为 true 时，更新 editableCourseInfo
         this.editableCourseInfo = { ...this.courseInfo };
+        console.log(this.editableCourseInfo)
       }
     },
     'editableCourseInfo.session_for_show': {

@@ -199,6 +199,7 @@
         :courseInfo="selectedCourseInfo"
         :isVisible="isSidebarVisible"
         @close="closeSidebar"
+        @update-course="updateSelectedCourseInfo"
     />
 
   </div>
@@ -299,7 +300,7 @@ export default {
           return indexA - indexB;
         });
       }
-    }
+    },
   },
 
   methods: {
@@ -365,9 +366,20 @@ export default {
 
     closeSidebar() {
       this.isSidebarVisible = false;
-
       // 关闭侧边栏时恢复原宽度
       this.mainContainerWidth = '100%'; // 恢复为原始宽度
+    },
+
+    async updateSelectedCourseInfo(updatedCourseInfo) {
+      for (let i = 0; i < this.courseInfos.length; i++) {
+        if (this.courseInfos[i].key === updatedCourseInfo.key) {
+          this.courseInfos[i] = updatedCourseInfo
+          await saveCourses(this.courseInfos)
+          this.courseInfos.forEach(info => {
+            this.courseInfoMap[info.key] = info;
+          });
+        }
+      }
     },
 
     // 课程转换
@@ -434,7 +446,7 @@ export default {
       const transformedCourses = this.newCourse.sessions.map(session => {
         return {
           classroom: session.location,
-          color: colorClasses[Math.floor(Math.random() * colorClasses.length)], 
+          color: colorClasses[Math.floor(Math.random() * colorClasses.length)],
           weeks: parseWeeks(session.weeks),
           day: parseWeekDay(session.weekDay),
           section: parseTimeSlots(session.timeSlots)
@@ -447,7 +459,8 @@ export default {
         name: this.newCourse.name,
         teacher: this.newCourse.teacher,
         remark: this.newCourse.description,
-        courses: transformedCourses
+        courses: transformedCourses,
+        session_for_show: this.newCourse.sessions
       };
 
       // 添加到 `courseInfos`
@@ -491,11 +504,16 @@ export default {
     },
 
     saveSession() {
+      const type = this.tempSession.weekType === "all" ? "全部" :
+          this.tempSession.weekType === "single" ? "单周" : "双周"
       const session = {
         weeks: `${this.tempSession.startWeek}-${this.tempSession.endWeek} (${this.tempSession.weekType === 'single' ? '单周' : this.tempSession.weekType === 'double' ? '双周' : '全部'})`,
         weekDay: this.tempSession.weekDay,
         timeSlots: this.tempSession.timeSlots,
         location: this.tempSession.location,
+        startWeek: this.tempSession.startWeek,
+        endWeek: this.tempSession.endWeek,
+        weekType: type
       };
 
       if (this.editingIndex !== null) {
@@ -757,31 +775,31 @@ export default {
 }
 
 .bg-green {
-  background-color: #32CD32; 
+  background-color: #32CD32;
 }
 
 .bg-red {
-  background-color: #FF6347; 
+  background-color: #FF6347;
 }
 
 .bg-purple {
-  background-color: #9370DB; 
+  background-color: #9370DB;
 }
 
 .bg-yellow {
-  background-color: #FFD700; 
+  background-color: #FFD700;
 }
 
 .bg-pink {
-  background-color: #FF69B4; 
+  background-color: #FF69B4;
 }
 
 .bg-teal {
-  background-color: #20B2AA; 
+  background-color: #20B2AA;
 }
 
 .bg-gray {
-  background-color: #B0C4DE; 
+  background-color: #B0C4DE;
 }
 
 

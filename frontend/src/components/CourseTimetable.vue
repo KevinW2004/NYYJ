@@ -236,7 +236,7 @@ export default {
         {start: '18:30', end: '19:20', label: '第9节'},
         {start: '19:30', end: '20:20', label: '第10节'},
         {start: '20:30', end: '21:20', label: '第11节'},
-        {start: '21:30', end: '22:20', label: '第12节'}
+        // {start: '21:30', end: '22:20', label: '第12节'}
       ],
       courseInfos: [],
       courseInfoMap: {}, // 用于快速查找课程信息
@@ -754,7 +754,7 @@ export default {
 
 .course-block {
   display: grid;
-  //flex-direction: column;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   color: white;
@@ -768,7 +768,7 @@ export default {
   overflow: auto;
 }
 .course-name {
-  font-size: min(1.5em, 1.2vw);
+  font-size: min(1.5em, 1.3vw);
 }
 .course-room {
   font-size: min(1em, 1.0vw);

@@ -679,7 +679,7 @@ export default {
   opacity: 1; /* 初始透明度 */
 }
 .button-fade-leave-to {
-  transform: translateX(100%); /* 向右移动 */
+  transform: translateX(130%); /* 向右移动 */
   opacity: 1; /* 结束透明度 */
 }
 /* Container Styles */

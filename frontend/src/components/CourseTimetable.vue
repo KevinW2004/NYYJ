@@ -11,7 +11,7 @@
           <div class="day-date">{{ day.date }}</div>
         </div>
         <!-- 添加课程按钮 -->
-        <button class="add-course-button" @click="isDialogVisible = true">+</button>
+        <button v-if="!isSidebarVisible" class="add-course-button" @click="isDialogVisible = true">+</button>
       </section>
 
       <!-- Main Course Table -->

@@ -749,6 +749,7 @@ export default {
   grid-row: 1 / -1; /* 覆盖整个网格的行 */
   gap: 5px;
   height: 100%;
+  max-width: 100%;
 }
 
 .course-block {
@@ -763,6 +764,8 @@ export default {
   text-align: center;
   max-height: 100%;
   max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: auto;
 }
 .course-name {
   font-size: min(1.5em, 1.2vw);

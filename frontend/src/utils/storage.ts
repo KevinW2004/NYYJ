@@ -1,4 +1,4 @@
-import {checkFileExist, deleteFile, readFile, saveDataToFile} from "./file";
+import { checkFileExist, deleteFile, readFile, saveDataToFile } from "./file";
 
 const BASE_PATH = 'D:/NYYJ-Storage/'
 const GLOBAL_CONFIG_FILE = `${BASE_PATH}global_config.json`
@@ -14,14 +14,15 @@ interface TermData {
     totalWeeks: number;
     startDate: string;
     courses: any[];
-    todoList: any[];
+    todos: Todo[];
+
 }
-interface TodoData {
-    course: string; // 关联课程
+interface Todo {
+    id: number;
     title: string;
-    description: string;
-    status: string; // 'undone'/ 'done' / 'delayed'
+    details: string;
     dueDate: string;
+    completed: boolean;
 }
 
 const DEFAULT_GLOBAL_CONFIG: GlobalConfig = {
@@ -35,7 +36,7 @@ const DEFAULT_GLOBAL_CONFIG: GlobalConfig = {
 export const readGlobalConfig = async () => {
     if (!await checkFileExist(GLOBAL_CONFIG_FILE)) {
         await saveDataToFile(GLOBAL_CONFIG_FILE, DEFAULT_GLOBAL_CONFIG);
-        await createNewTerm({name: "新学期1", totalWeeks: 17, startDate: new Date().toISOString()});
+        await createNewTerm({ name: "新学期1", totalWeeks: 17, startDate: new Date().toISOString() });
     }
     const config = await readFile(GLOBAL_CONFIG_FILE);
     // return JSON.parse(config) as GlobalConfig;
@@ -113,8 +114,8 @@ export const createNewTerm = async (termData: any) => {
         totalWeeks: termData.totalWeeks || 17,
         // startDate: termData.startDate || new Date().toISOString().split('T')[0],
         startDate: termData.startDate || new Date().toISOString(),
-        courses:  termData.courses || [],
-        todoList: termData.todoList || []
+        courses: termData.courses || [],
+        todos: termData.todos || [] //初始化todos
     };
     await saveTermData(term, newTermData); // 创建新学期数据文件
     return newTermData;
@@ -148,13 +149,60 @@ export const saveCourses = async (courses: any) => {
     await saveCurrentTermData(termData);
 };
 
-export const getTodoList = async () => {
+// 读取当前学期的 todos 数据
+export const getTodos = async () => {
     const termData = await readCurrentTermData();
-    return termData.todoList;
+    const todos = termData.todos || [];
+    return todos;
 };
 
-export const saveTodoList = async (todoList: any) => {
+// 增加一个 todos 数据
+export const addTodo = async (todo: Todo) => {
     const termData = await readCurrentTermData();
-    termData.todoList = todoList;
-    await saveCurrentTermData(termData);
+    termData.todos.push(todo); // 添加 todo
+    await saveCurrentTermData(termData); // 保存数据
+};
+// 更新一个 todos 数据
+export const updateTodo = async (index: number, updatedTodo: Todo) => {
+    const termData = await readCurrentTermData();
+    if (index >= 0 && index < termData.todos.length) {
+        termData.todos[index] = updatedTodo; // 更新指定的 todo
+        await saveCurrentTermData(termData); // 保存数据
+    } else {
+        throw new Error('Invalid todo index');
+    }
+};
+// 删除一个 todos 数据
+export const deleteTodo = async (index: number) => {
+    const termData = await readCurrentTermData();
+    if (index >= 0 && index < termData.todos.length) {
+        termData.todos.splice(index, 1); // 删除指定的 todo
+        await saveCurrentTermData(termData); // 保存数据
+    } else {
+        throw new Error('Invalid todo index');
+    }
+};
+
+// 添加完成任务的方法
+export const finishTodo = async (id: number) => {
+    const termData = await readCurrentTermData();
+    const todo = termData.todos.find(todo => todo.id === id);
+    if (todo) {
+        todo.completed = true;
+        await saveCurrentTermData(termData);
+    } else {
+        throw new Error("Todo not found");
+    }
+};
+
+// 添加重置任务的方法
+export const resetTodo = async (id: number) => {
+    const termData = await readCurrentTermData();
+    const todo = termData.todos.find(todo => todo.id === id);
+    if (todo) {
+        todo.completed = false;
+        await saveCurrentTermData(termData);
+    } else {
+        throw new Error("Todo not found");
+    }
 };

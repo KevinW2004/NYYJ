@@ -21,6 +21,12 @@ const routes: Array<RouteRecordRaw> = [
     component: CourseTimetable, // 更新为新名称
     meta: { title: '我的课表' },
   },
+  {
+    path: '/todolist',
+    name: 'todolist',
+    component: () => import('../components/Todolist.vue'),
+    meta: { title: '我的待办' },
+  }
 ];
 
 const router = createRouter({

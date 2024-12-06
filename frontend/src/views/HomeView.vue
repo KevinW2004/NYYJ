@@ -16,7 +16,7 @@
 <script lang="ts">
 import CourseTimetable from '@/components/CourseTimetable.vue';
 // import Todolist from '@/components/Todolist.vue';
-import { defineComponent, ref } from 'vue';
+import {defineComponent, ref} from 'vue';
 
 export default defineComponent({
   name: 'HomeView',

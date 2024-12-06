@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import {contextBridge, ipcRenderer} from 'electron';
 
 contextBridge.exposeInMainWorld('api', {
     deleteFile: (filePath: string) => ipcRenderer.invoke('delete-file', filePath),

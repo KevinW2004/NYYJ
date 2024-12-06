@@ -77,6 +77,7 @@
 
 <script>
 import backgroundImg from '@/assets/blue-bg.jpg'
+
 export default {
   props: {
     courseInfo: Object,

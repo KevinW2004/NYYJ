@@ -1,5 +1,5 @@
 /* shims-router.d.ts */
-import { Router } from 'vue-router';
+import {Router} from 'vue-router';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {

@@ -31,7 +31,7 @@
             @click="navigateTo('home')" value="1" >
             <template #title><h3>我的课表</h3></template>
           </v-list-item>
-          <v-list-item prepend-icon="mdi-calendar-check" value="2" 
+          <v-list-item prepend-icon="mdi-calendar-check" value="2"
           @click="navigateTo('todolist')">
             <template #title><h3>待办清单</h3></template>
           </v-list-item>
@@ -51,7 +51,7 @@
 <script lang="ts">
 import {defineComponent, ref} from 'vue';
 import mainHeader from './components/mainHeader.vue';
-import  drawerBackground  from "@/assets/bg.jpg";
+import drawerBackground from "@/assets/bg.jpg";
 import avatar from "@/assets/avatar4.png"
 import {readGlobalConfig} from "@/utils/storage";
 

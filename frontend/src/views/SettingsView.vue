@@ -71,13 +71,8 @@
 </template>
 
 <script>
-import {ref, onMounted} from 'vue';
-import {
-  readGlobalConfig,
-  writeGlobalConfig,
-  readCurrentTermData,
-  createNewTerm, readTermData, saveTermData, deleteTerm
-} from '@/utils/storage';
+import {onMounted, ref} from 'vue';
+import {createNewTerm, deleteTerm, readGlobalConfig, readTermData, saveTermData, writeGlobalConfig} from '@/utils/storage';
 
 export default {
   setup() {

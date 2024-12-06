@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
+import {createRouter, createWebHashHistory, RouteRecordRaw} from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import CourseTimetable from '../components/CourseTimetable.vue';
 
@@ -24,7 +24,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/todolist',
     name: 'todolist',
-    component: () => import('../components/Todolist.vue'),
+    component: () => import('../views/TodoView.vue'),
     meta: { title: '我的待办' },
   }
 ];
@@ -35,7 +35,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  // const title = to.meta.title || '南雍易记'; 
+  // const title = to.meta.title || '南雍易记';
   const title = '南雍易记';
   document.title = title as string;
   next();

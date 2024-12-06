@@ -1,4 +1,4 @@
-import { checkFileExist, deleteFile, readFile, saveDataToFile } from "./file";
+import {checkFileExist, deleteFile, readFile, saveDataToFile} from "./file";
 
 const BASE_PATH = 'D:/NYYJ-Storage/'
 const GLOBAL_CONFIG_FILE = `${BASE_PATH}global_config.json`
@@ -21,7 +21,7 @@ interface TodoData {
     course: string; // 关联课程
     title: string;
     description: string;
-    status: string; // 'undone'/ 'done' / 'delayed'
+    status: string; // “已完成”“未完成”“已逾期”
     dueDate: string;
 }
 
@@ -169,7 +169,7 @@ export const addTodo = async (todo: Omit<TodoData, 'id' | 'status'>) => {
     const newTodo: TodoData = {
         id: newId,
         ...todo,
-        status: 'undone', // 默认状态
+        status: '未完成', // 默认状态
     };
 
     termData.todoList.push(newTodo); // 添加 todo
@@ -202,7 +202,7 @@ export const finishTodo = async (id: number) => {
     const termData = await readCurrentTermData();
     const todo = termData.todoList.find(todo => todo.id === id);
     if (todo) {
-        todo.status = "done";
+        todo.status = "已完成";
         await saveCurrentTermData(termData);
     } else {
         throw new Error("Todo not found");
@@ -228,8 +228,8 @@ export const markTodoAsOverdue = async () => {
 
     termData.todoList.forEach(todo => {
         // 如果任务未完成且过期了，标记为逾期
-        if (todo.status !== "done" && todo.dueDate < currentDate) {
-            todo.status = "delayed"; // 状态改为逾期
+        if (todo.status !== "已完成" && todo.dueDate < currentDate) {
+            todo.status = "已逾期"; // 状态改为逾期
         }
     });
 

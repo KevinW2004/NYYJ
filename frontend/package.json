@@ -1,7 +1,7 @@
 {
   "build": {
     "appId": "com.nyyj.frontend",
-    "copyright":"KEVIN WU",
+    "copyright": "KW",
     "productName":"南雍易记",
     "icon": "src/assets/icon.png",
     "electronDownload": {
@@ -27,7 +27,7 @@
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
-  "main": "src/background.ts",
+  "main": "dist_electron/index.js",
   "dependencies": {
     "@mdi/font": "5.9.55",
     "roboto-fontface": "*",

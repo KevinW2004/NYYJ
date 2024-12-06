@@ -31,7 +31,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import { getTodos, finishTodo } from '@/utils/storage'; // 请根据你的项目实际路径调整
+import {getTodos, finishTodo, resetTodo, markTodoAsOverdue} from '@/utils/storage'; // 请根据你的项目实际路径调整
 
 export default {
   setup() {
@@ -39,15 +39,31 @@ export default {
 
     // 获取 todos 数据
     const fetchTodos = async () => {
+      await markTodoAsOverdue();
       todos.value = await getTodos();
+      // 删除“已完成”
+      todos.value = todos.value.filter(t => t.status !== '已完成');
     };
 
-    // 切换 todo 状态
     const toggleTodoStatus = async (id) => {
       const todo = todos.value.find(t => t.id === id);
       if (todo) {
-        await finishTodo(id); // 切换完成状态
-        await fetchTodos(); // 刷新 todos
+        if (todo.status !== '已完成'){
+          await finishTodo(id); // 切换完成状态
+          todo.status = '已完成';
+        } else {
+          await resetTodo(id)
+          todo.status = '未完成';
+          const currentDate = new Date();
+          const dueDate = new Date(todo.dueDate);
+          if (currentDate > dueDate) {
+            todo.status = '已逾期';
+          }
+        }
+        // 等3s再刷新数据
+        setTimeout(() => {
+          fetchTodos();
+        }, 3000);
       }
     };
 

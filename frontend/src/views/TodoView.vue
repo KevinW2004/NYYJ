@@ -1,9 +1,12 @@
 <script setup lang="ts">
 
+import TodoList from "@/components/TodoList.vue";
 </script>
 
 <template>
-<h3> Todo View </h3>
+  <div style="width: 500px">
+  <todo-list/>
+  </div>
 <!--  记得左右结构-->
 </template>
 

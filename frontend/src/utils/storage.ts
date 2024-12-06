@@ -214,7 +214,7 @@ export const resetTodo = async (id: number) => {
     const termData = await readCurrentTermData();
     const todo = termData.todoList.find(todo => todo.id === id);
     if (todo) {
-        todo.status = "undone";
+        todo.status = "未完成";
         await saveCurrentTermData(termData);
     } else {
         throw new Error("Todo not found");

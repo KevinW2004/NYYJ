@@ -14,15 +14,15 @@ interface TermData {
     totalWeeks: number;
     startDate: string;
     courses: any[];
-    todos: Todo[];
-
+    todoList: any[];
 }
-interface Todo {
+interface TodoData {
     id: number;
+    course: string; // 关联课程
     title: string;
-    details: string;
+    description: string;
+    status: string; // 'undone'/ 'done' / 'delayed'
     dueDate: string;
-    completed: boolean;
 }
 
 const DEFAULT_GLOBAL_CONFIG: GlobalConfig = {
@@ -115,7 +115,7 @@ export const createNewTerm = async (termData: any) => {
         // startDate: termData.startDate || new Date().toISOString().split('T')[0],
         startDate: termData.startDate || new Date().toISOString(),
         courses: termData.courses || [],
-        todos: termData.todos || [] //初始化todos
+        todoList: termData.todoList || []
     };
     await saveTermData(term, newTermData); // 创建新学期数据文件
     return newTermData;
@@ -152,21 +152,35 @@ export const saveCourses = async (courses: any) => {
 // 读取当前学期的 todos 数据
 export const getTodos = async () => {
     const termData = await readCurrentTermData();
-    const todos = termData.todos || [];
+    const todos = termData.todoList || [];
     return todos;
 };
 
 // 增加一个 todos 数据
-export const addTodo = async (todo: Todo) => {
+export const addTodo = async (todo: Omit<TodoData, 'id' | 'status'>) => {
     const termData = await readCurrentTermData();
-    termData.todos.push(todo); // 添加 todo
+
+    // 自动生成 ID，假设 ID 是递增的
+    const newId = termData.todoList.length > 0
+        ? Math.max(...termData.todoList.map(t => t.id)) + 1
+        : 1;
+
+    // 新的 todo 数据
+    const newTodo: TodoData = {
+        id: newId,
+        ...todo,
+        status: 'undone', // 默认状态
+    };
+
+    termData.todoList.push(newTodo); // 添加 todo
     await saveCurrentTermData(termData); // 保存数据
 };
+
 // 更新一个 todos 数据
-export const updateTodo = async (index: number, updatedTodo: Todo) => {
+export const updateTodo = async (index: number, updatedTodo: TodoData) => {
     const termData = await readCurrentTermData();
-    if (index >= 0 && index < termData.todos.length) {
-        termData.todos[index] = updatedTodo; // 更新指定的 todo
+    if (index >= 0 && index < termData.todoList.length) {
+        termData.todoList[index] = updatedTodo; // 更新指定的 todo
         await saveCurrentTermData(termData); // 保存数据
     } else {
         throw new Error('Invalid todo index');
@@ -175,8 +189,8 @@ export const updateTodo = async (index: number, updatedTodo: Todo) => {
 // 删除一个 todos 数据
 export const deleteTodo = async (index: number) => {
     const termData = await readCurrentTermData();
-    if (index >= 0 && index < termData.todos.length) {
-        termData.todos.splice(index, 1); // 删除指定的 todo
+    if (index >= 0 && index < termData.todoList.length) {
+        termData.todoList.splice(index, 1); // 删除指定的 todo
         await saveCurrentTermData(termData); // 保存数据
     } else {
         throw new Error('Invalid todo index');
@@ -186,9 +200,9 @@ export const deleteTodo = async (index: number) => {
 // 添加完成任务的方法
 export const finishTodo = async (id: number) => {
     const termData = await readCurrentTermData();
-    const todo = termData.todos.find(todo => todo.id === id);
+    const todo = termData.todoList.find(todo => todo.id === id);
     if (todo) {
-        todo.completed = true;
+        todo.status = "done";
         await saveCurrentTermData(termData);
     } else {
         throw new Error("Todo not found");
@@ -198,11 +212,26 @@ export const finishTodo = async (id: number) => {
 // 添加重置任务的方法
 export const resetTodo = async (id: number) => {
     const termData = await readCurrentTermData();
-    const todo = termData.todos.find(todo => todo.id === id);
+    const todo = termData.todoList.find(todo => todo.id === id);
     if (todo) {
-        todo.completed = false;
+        todo.status = "undone";
         await saveCurrentTermData(termData);
     } else {
         throw new Error("Todo not found");
     }
+};
+
+// 将任务标记为逾期
+export const markTodoAsOverdue = async () => {
+    const termData = await readCurrentTermData();
+    const currentDate = new Date().toISOString(); // 获取当前时间
+
+    termData.todoList.forEach(todo => {
+        // 如果任务未完成且过期了，标记为逾期
+        if (todo.status !== "done" && todo.dueDate < currentDate) {
+            todo.status = "delayed"; // 状态改为逾期
+        }
+    });
+
+    await saveCurrentTermData(termData); // 保存更新后的数据
 };

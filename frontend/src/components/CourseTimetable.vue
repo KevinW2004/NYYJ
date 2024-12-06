@@ -212,7 +212,6 @@
 
 <script>
 // import {ref, computed, onMounted} from 'vue';
-import {saveDataToFile, readFile} from "@/utils/file";
 import {getCourses, saveCourses} from "@/utils/storage";
 import CourseDetailSidebar from "@/components/CourseDetailSidebar.vue";
 

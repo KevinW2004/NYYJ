@@ -14,7 +14,14 @@ interface TermData {
     totalWeeks: number;
     startDate: string;
     courses: any[];
-    
+    todoList: any[];
+}
+interface TodoData {
+    course: string; // 关联课程
+    title: string;
+    description: string;
+    status: string; // 'undone'/ 'done' / 'delayed'
+    dueDate: string;
 }
 
 const DEFAULT_GLOBAL_CONFIG: GlobalConfig = {
@@ -106,7 +113,8 @@ export const createNewTerm = async (termData: any) => {
         totalWeeks: termData.totalWeeks || 17,
         // startDate: termData.startDate || new Date().toISOString().split('T')[0],
         startDate: termData.startDate || new Date().toISOString(),
-        courses:  termData.courses || []
+        courses:  termData.courses || [],
+        todoList: termData.todoList || []
     };
     await saveTermData(term, newTermData); // 创建新学期数据文件
     return newTermData;
@@ -137,5 +145,16 @@ export const getCourses = async () => {
 export const saveCourses = async (courses: any) => {
     const termData = await readCurrentTermData();
     termData.courses = courses;
+    await saveCurrentTermData(termData);
+};
+
+export const getTodoList = async () => {
+    const termData = await readCurrentTermData();
+    return termData.todoList;
+};
+
+export const saveTodoList = async (todoList: any) => {
+    const termData = await readCurrentTermData();
+    termData.todoList = todoList;
     await saveCurrentTermData(termData);
 };

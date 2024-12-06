@@ -1,14 +1,22 @@
 <template>
   <v-container>
+    <div v-if="todos.length === 0">
+      <v-alert type="info" border="left" class="mb-3" color="rgb(143, 98, 148)">
+        <h3>暂无待办事项</h3>
+      </v-alert>
+    </div>
     <v-row>
       <v-col cols="12">
+        <v-card @click="openAddTodoDialog" class="add-todo-btn" hover outlined>
+            <v-icon>mdi-plus</v-icon>
+        </v-card>
         <v-card
-          v-for="todo in getSortedTodos()"
-          :key="todo.id"
-          @click="viewTodoDetails(todo.id)"
-          :style="{ cursor: 'pointer' }"
-          :class="getTodoClass(todo)"
-          class="mb-3"
+            v-for="todo in getSortedTodos()"
+            :key="todo.id"
+            @click="viewTodoDetails(todo.id)"
+            :style="{ cursor: 'pointer' }"
+            :class="getTodoClass(todo)"
+            class="mb-3"
         >
           <v-card-title class="d-flex justify-space-between align-center">
             <div>
@@ -17,8 +25,8 @@
               <div class="subheading">{{ formatDueDate(todo.dueDate) }}</div>
             </div>
             <v-avatar
-              @click.stop="toggleTodoStatus(todo.id)"
-              :class="{'completed': todo.status === '已完成'}"
+                @click.stop="toggleTodoStatus(todo.id)"
+                :class="{'completed': todo.status === '已完成'}"
             >
               <v-icon>{{ todo.status === '已完成' ? 'mdi-check-circle' : 'mdi-circle-outline' }}</v-icon>
             </v-avatar>
@@ -30,7 +38,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import {ref, onMounted} from 'vue';
 import {getTodos, finishTodo, resetTodo, markTodoAsOverdue} from '@/utils/storage'; // 请根据你的项目实际路径调整
 
 export default {
@@ -48,7 +56,7 @@ export default {
     const toggleTodoStatus = async (id) => {
       const todo = todos.value.find(t => t.id === id);
       if (todo) {
-        if (todo.status !== '已完成'){
+        if (todo.status !== '已完成') {
           await finishTodo(id); // 切换完成状态
           todo.status = '已完成';
         } else {
@@ -122,6 +130,12 @@ export default {
 }
 
 .v-avatar {
+  cursor: pointer;
+}
+
+.add-todo-btn {
+  display: flex;
+  justify-content: center;
   cursor: pointer;
 }
 </style>

@@ -26,13 +26,39 @@
           outlined
         ></v-textarea>
   
-        <!-- 到期时间显示 -->
-        <v-text-field
-          v-model="displayDateTime"
-          label="到期时间"
-          readonly
+        <!-- 日期选择器 -->
+        <v-date-input
+          v-model="selectedDate"
+          label="截止日期"
           outlined
+          required
+        ></v-date-input>
+  
+        <!-- 时间选择器文本框 -->
+        <v-text-field
+          v-model="selectedTime"
+          label="截止时间"
+          outlined
+          readonly
+          @click="showTimePicker = true"
         ></v-text-field>
+  
+        <!-- 时间选择器弹窗 -->
+        <v-dialog v-model="showTimePicker" max-width="290px">
+          <v-card>
+            <v-time-picker
+              v-model="selectedTime"
+              format="24hr"
+              scrollable
+            ></v-time-picker>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text color="primary" @click="showTimePicker = false">
+                确定
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
   
         <!-- 保存按钮 -->
         <v-btn color="success" @click="submitTodo">保存</v-btn>
@@ -41,10 +67,10 @@
   </template>
   
   <script>
-  import { ref } from 'vue';
+  import { ref } from "vue";
   
   export default {
-    name: 'AddTodoItem',
+    name: "AddTodoItem",
     props: {
       onAddTodo: {
         type: Function,
@@ -52,57 +78,73 @@
       },
     },
     setup(_, { emit }) {
-      const defaultDueDate = new Date("2024-12-25T22:00:00");
-  
       const todo = ref({
         id: Date.now(),
-        course: '',
-        title: '',
-        description: '',
-        status: '未完成', // 默认状态
-        dueDate: defaultDueDate.toISOString(), // ISO 格式的默认日期时间
+        course: "",
+        title: "",
+        description: "",
+        status: "未完成", // 默认状态
+        dueDate: "", // 由用户选择并设置
       });
   
       // 定义课程数组
       const courses = ref(["数学", "物理", "计算机科学"]);
   
       const isFormValid = ref(false);
-      const displayDateTime = ref(
-        `${defaultDueDate.toLocaleDateString()} ${defaultDueDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-      );
   
+      // 日期和时间选择器
+      const selectedDate = ref(null); // 用户选择的日期
+      const selectedTime = ref(null); // 用户选择的时间
+      const showTimePicker = ref(false); // 控制时间选择器弹窗显示
+  
+      // 保存任务
       const submitTodo = () => {
         if (!todo.value.title.trim()) {
-          alert('请输入任务标题');
+          alert("请输入任务标题");
           return;
         }
   
         if (!todo.value.course) {
-          alert('请选择关联课程');
+          alert("请选择关联课程");
           return;
         }
   
-        emit('add-todo', { ...todo.value });
+        if (!selectedDate.value || !selectedTime.value) {
+          alert("请选择截止日期和时间");
+          return;
+        }
+  
+        // 设置完整的截止日期时间
+        const [hours, minutes] = selectedTime.value.split(":").map(Number);
+        const date = new Date(selectedDate.value);
+        date.setHours(hours, minutes);
+        todo.value.dueDate = date.toISOString();
+  
+        emit("add-todo", { ...todo.value });
         resetForm();
       };
   
+      // 重置表单
       const resetForm = () => {
         todo.value = {
           id: Date.now(),
-          course: '',
-          title: '',
-          description: '',
-          status: '未完成',
-          dueDate: defaultDueDate.toISOString(),
+          course: "",
+          title: "",
+          description: "",
+          status: "未完成",
+          dueDate: "",
         };
-        displayDateTime.value = `${defaultDueDate.toLocaleDateString()} ${defaultDueDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        selectedDate.value = null;
+        selectedTime.value = null;
       };
   
       return {
         todo,
         courses,
         isFormValid,
-        displayDateTime,
+        selectedDate,
+        selectedTime,
+        showTimePicker,
         submitTodo,
       };
     },

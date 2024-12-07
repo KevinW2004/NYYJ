@@ -76,12 +76,12 @@ export default {
       isOpenAddTodoDialog.value = false;
     };
 
-    const addTodoItemHandler = (newTodo) => {
+    const addTodoItemHandler = async (newTodo) => {
       todos.value.push(newTodo);
       console.log("新待办事项:", newTodo);
       isOpenAddTodoDialog.value = false; // 关闭弹窗
-      store.commit('SET_TODO_LIST', todos)
-      addTodo(newTodo);
+      await addTodo(newTodo);
+      fetchTodos()
     };
 
     // 获取 todos 数据

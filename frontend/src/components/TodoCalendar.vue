@@ -47,8 +47,9 @@ export default {
 
     watch(
         () => store.state._todoList,
-        (newTodoList) => {
+          (newTodoList)  => {
           todos.value = newTodoList;
+          fetchTodos()
         }
     )
 

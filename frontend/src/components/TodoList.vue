@@ -55,6 +55,7 @@
 
 <script>
 import {ref, onMounted} from 'vue';
+import { useStore } from 'vuex';
 import {getTodos, finishTodo, resetTodo, markTodoAsOverdue} from '@/utils/storage'; // 请根据你的项目实际路径调整
 import AddTodoItem from './AddTodoItem.vue';
 
@@ -64,6 +65,7 @@ export default {
   },
   setup() {
     const todos = ref([]);
+    const store = useStore();
 
     // 控制弹窗显示状态
     const isOpenAddTodoDialog = ref(false);
@@ -130,9 +132,16 @@ export default {
       });
     };
 
+    // 根据 id 获取单个 todo
+    const getTodoById = (id) => {
+      return todos.value.find(todo => todo.id === id) || null;
+    };
+
     // 查看 todo 详情
     const viewTodoDetails = (id) => {
       // 这里可以实现查看详情的逻辑
+      const todo = getTodoById(id)
+      store.commit('set_todo_detail', todo)
       console.log(`Viewing details for todo id: ${id}`);
     };
 

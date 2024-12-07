@@ -1,15 +1,31 @@
 <template>
   <v-container>
+
     <div v-if="todos.length === 0">
       <v-alert type="info" border="left" class="mb-3" color="rgb(143, 98, 148)">
         <h3>暂无待办事项</h3>
       </v-alert>
     </div>
+      
     <v-row>
       <v-col cols="12">
-        <v-card @click="openAddTodoDialog" class="add-todo-btn" hover outlined>
-            <v-icon>mdi-plus</v-icon>
+        
+        <v-card @click="isOpenAddTodoDialog = true" class="add-todo-btn" hover outlined>
+          <v-icon>mdi-plus</v-icon>
         </v-card>
+
+        <!-- 添加待办事项 -->
+        <v-dialog v-model="isOpenAddTodoDialog" max-width="600px">
+          <v-card>
+            <v-card-text>
+              <AddTodoItem @add-todo="addTodoItemHandler" />
+            </v-card-text>
+            <v-card-actions>
+              <v-btn color="error" @click="closeDialog">关闭</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
         <v-card
             v-for="todo in getSortedTodos()"
             :key="todo.id"
@@ -40,10 +56,28 @@
 <script>
 import {ref, onMounted} from 'vue';
 import {getTodos, finishTodo, resetTodo, markTodoAsOverdue} from '@/utils/storage'; // 请根据你的项目实际路径调整
+import AddTodoItem from './AddTodoItem.vue';
 
 export default {
+  components: {
+    AddTodoItem,
+  },
   setup() {
     const todos = ref([]);
+
+    // 控制弹窗显示状态
+    const isOpenAddTodoDialog = ref(false);
+
+    // 关闭弹窗
+    const closeDialog = () => {
+      isOpenAddTodoDialog.value = false;
+    };
+
+    const addTodoItemHandler = (newTodo) => {
+      todos.value.push(newTodo);
+      console.log("新待办事项:", newTodo);
+      isOpenAddTodoDialog.value = false; // 关闭弹窗
+    };
 
     // 获取 todos 数据
     const fetchTodos = async () => {
@@ -106,6 +140,9 @@ export default {
 
     return {
       todos,
+      isOpenAddTodoDialog,
+      closeDialog,
+      addTodoItemHandler,
       toggleTodoStatus,
       formatDueDate,
       getTodoClass,

@@ -58,6 +58,7 @@ import {ref, onMounted} from 'vue';
 import { useStore } from 'vuex';
 import {getTodos, finishTodo, resetTodo, markTodoAsOverdue} from '@/utils/storage'; // 请根据你的项目实际路径调整
 import AddTodoItem from './AddTodoItem.vue';
+import { addTodo } from '@/utils/storage';
 
 export default {
   components: {
@@ -79,6 +80,7 @@ export default {
       todos.value.push(newTodo);
       console.log("新待办事项:", newTodo);
       isOpenAddTodoDialog.value = false; // 关闭弹窗
+      addTodo(newTodo);
     };
 
     // 获取 todos 数据

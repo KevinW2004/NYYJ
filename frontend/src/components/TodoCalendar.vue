@@ -45,6 +45,13 @@ export default {
     // 在组件挂载时调用 fetchTodos
     onMounted(fetchTodos);
 
+    watch(
+        () => store.state._todoList,
+        (newTodoList) => {
+          todos.value = newTodoList;
+        }
+    )
+
     return {
       calendarEvents,
     };

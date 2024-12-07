@@ -80,6 +80,7 @@ export default {
       todos.value.push(newTodo);
       console.log("新待办事项:", newTodo);
       isOpenAddTodoDialog.value = false; // 关闭弹窗
+      store.commit('SET_TODO_LIST', todos)
       addTodo(newTodo);
     };
 
@@ -89,6 +90,10 @@ export default {
       todos.value = await getTodos();
       // 删除“已完成”
       todos.value = todos.value.filter(t => t.status !== '已完成');
+      store.state._todoList = todos
+      if (store.state.todoDetail && store.state.todoDetail.id !== 0 && store.state.todoDetail.status === "已完成") {
+        store.state.todoDetail.id = 0;
+      }
     };
 
     const toggleTodoStatus = async (id) => {

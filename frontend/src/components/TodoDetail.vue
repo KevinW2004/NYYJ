@@ -45,16 +45,7 @@
             <!-- 日历区域 -->
             <v-col cols="12">
               <v-sheet class="calendar">
-                <v-calendar
-                    interval-height="10"
-                    ref="calendar"
-                    v-model="value"
-                    :events="events"
-                    :view-mode="type"
-                    :weekdays="weekday"
-                    disabled
-                    class="calendar"
-                ></v-calendar>
+                <v-calendar :events="events"></v-calendar>
               </v-sheet>
             </v-col>
           </v-card>
@@ -81,10 +72,7 @@ export default {
     VCalendar,
   },
   setup() {
-    const weekday = [0, 1, 2, 3, 4, 5, 6];
-    const type = 'month';
     const events = ref([]);
-    const value = [new Date()];
 
     // 设置事件
     const setEvents = () => {
@@ -143,10 +131,7 @@ export default {
 
     return {
       todo,
-      weekday,
-      type,
       events,
-      value,
       formatDueDate,
       clearTodo
     };

@@ -46,7 +46,7 @@
           show-arrows
           v-model="selectedWeek"
       >
-        <v-slide-item
+        <v-slide-group-item
             v-for="week in totalWeeks"
             :key="week"
             :value="week"
@@ -60,7 +60,7 @@
             <v-card-text v-if="week <= 9">第 {{ week }} 周</v-card-text>
             <v-card-text v-else>第{{ week }}周</v-card-text>
           </v-card>
-        </v-slide-item>
+        </v-slide-group-item>
       </v-slide-group>
 
       <!-- 第一个弹窗: 添加课程 -->

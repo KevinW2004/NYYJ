@@ -1,6 +1,6 @@
 <template>
   <div class="home-view">
-    <v-btn @click="toggleTodoList" size="small" color="primary" width="130px">TODO List</v-btn>
+<!--    <v-btn @click="toggleTodoList" size="small" color="primary" width="130px">TODO List</v-btn>-->
     <div class="table-container" :class="{ compressed: showTodoList }">
       <course-timetable />
     </div>
@@ -64,6 +64,7 @@ export default defineComponent({
 }
 
 .table-container {
+  margin-top: 10px;
   height: calc(100% - 35px);
   max-height: 100%;
   width: 100%;

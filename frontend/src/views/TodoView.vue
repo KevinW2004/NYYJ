@@ -38,7 +38,7 @@ import TodoDetail from "@/components/TodoDetail.vue";
 /* 左侧列表区域 */
 .todo-list {
   width: 30%;
-  border-right: 2px solid #3700b3;
+  //border-right: 2px solid #3700b3;
   padding: 7px;
   box-sizing: border-box;
   overflow-y: auto;

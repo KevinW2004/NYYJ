@@ -56,14 +56,19 @@
 
   <!-- 当 todo 为空时显示 TodoCalendar -->
   <div v-else>
-    <todo-calendar></todo-calendar>
+    <v-container fluid class="todo-container">
+      <v-card class="todo-card">
+        <h4 class="headline" style="align-self: center; margin-bottom: 7px;"> 总览 </h4>
+        <todo-calendar style="border-radius: 10px;"></todo-calendar>
+      </v-card>
+    </v-container>
   </div>
 </template>
 
 <script>
-import { useStore } from 'vuex';
-import { ref, watch } from 'vue';
-import { VCalendar } from 'vuetify/labs/VCalendar'
+import {useStore} from 'vuex';
+import {ref, watch} from 'vue';
+import {VCalendar} from 'vuetify/labs/VCalendar'
 import TodoCalendar from "@/components/TodoCalendar.vue";
 
 export default {
@@ -108,7 +113,7 @@ export default {
           todo.value = newTodoDetail;
           setEvents();
         },
-        { immediate: true }
+        {immediate: true}
     );
 
     // 格式化到期日期

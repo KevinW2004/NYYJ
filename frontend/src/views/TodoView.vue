@@ -19,15 +19,27 @@ import TodoDetail from "@/components/TodoDetail.vue";
 .container {
   display: flex;
   width: 100%;
-  height: 100vh
+  height: 100vh;
+  position: relative;
+  background:  rgba(200, 162, 255, 0.5);
+}
+.container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("@/assets/blue-bg.jpg");
+  background-size: cover;
+  z-index: -1;
 }
 
 /* 左侧列表区域 */
 .todo-list {
   width: 30%;
-  background-color: #f4f4f4;
-  border-right: 1px solid #ddd;
-  padding: 10px;
+  border-right: 2px solid #3700b3;
+  padding: 7px;
   box-sizing: border-box;
   overflow-y: auto;
 }

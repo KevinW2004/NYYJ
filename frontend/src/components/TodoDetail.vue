@@ -37,7 +37,7 @@
               <!-- 到期日期 -->
               <div class="todo-info">
                 <v-icon class="todo-icon">mdi-calendar-clock</v-icon>
-                <span><strong>到期日期:</strong> {{ formatDueDate(todo.dueDate) }}</span>
+                <span><strong>到期时间:</strong> {{ formatDueDate(todo.dueDate) }}</span>
               </div>
 
             </v-card-text>
@@ -113,7 +113,15 @@ export default {
 
     // 格式化到期日期
     const formatDueDate = (dueDate) => {
-      return new Date(dueDate).toLocaleDateString();
+      // return new Date(dueDate).toLocaleDateString();
+      // yyyy/MM/dd hh:mm
+      return new Date(dueDate).toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     };
 
     // 清空 Todo
@@ -154,6 +162,7 @@ export default {
 .todo-card {
   width: 100%;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background: rgba(244, 244, 244, 0.7);
   border-radius: 8px;
   padding: 20px; /* 减少内边距，给日历更多空间 */
   display: flex;
@@ -213,6 +222,7 @@ export default {
 .calendar {
   height: 40%;
   overflow: auto;
+  border-radius: 10px;
 }
 
 /* 返回按钮的样式 */

@@ -6,10 +6,10 @@
         <h3>暂无待办事项</h3>
       </v-alert>
     </div>
-      
+
     <v-row>
       <v-col cols="12">
-        
+
         <v-card @click="isOpenAddTodoDialog = true" class="add-todo-btn" hover outlined>
           <v-icon>mdi-plus</v-icon>
         </v-card>
@@ -27,7 +27,7 @@
         </v-dialog>
 
         <v-card
-            v-for="todo in getSortedTodos()"
+            v-for="todo in todos"
             :key="todo.id"
             @click="viewTodoDetails(todo.id)"
             :style="{ cursor: 'pointer' }"
@@ -36,9 +36,9 @@
         >
           <v-card-title class="d-flex justify-space-between align-center">
             <div>
-              <h2 class="headline">{{ todo.title }}</h2>
-              <div class="subheading">{{ todo.course }}</div>
-              <div class="subheading">{{ formatDueDate(todo.dueDate) }}</div>
+              <h3 class="headline">{{ todo.title }}</h3>
+              <div class="subheading" style="font-size: 14px">{{ todo.course }}</div>
+              <div class="subheading" style="font-size: 14px">{{ formatDueDate(todo.dueDate) }}</div>
             </div>
             <v-avatar
                 @click.stop="toggleTodoStatus(todo.id)"
@@ -88,12 +88,11 @@ export default {
     const fetchTodos = async () => {
       await markTodoAsOverdue();
       todos.value = await getTodos();
-      // 删除“已完成”
-      todos.value = todos.value.filter(t => t.status !== '已完成');
       store.state._todoList = todos
       if (store.state.todoDetail && store.state.todoDetail.id !== 0 && store.state.todoDetail.status === "已完成") {
         store.state.todoDetail.id = 0;
       }
+      todos.value = getSortedTodos();
     };
 
     const toggleTodoStatus = async (id) => {
@@ -111,10 +110,9 @@ export default {
             todo.status = '已逾期';
           }
         }
-        // 等3s再刷新数据
         setTimeout(() => {
           fetchTodos();
-        }, 3000);
+        }, 500);
       }
     };
 
@@ -132,11 +130,15 @@ export default {
 
     // 获取排序后的 todos
     const getSortedTodos = () => {
-      return todos.value.slice().sort((a, b) => {
+      // 按到期日期排序，且已完成的放在最后
+      let sortedTodos = todos.value.slice().sort((a, b) => {
         const dateA = new Date(a.dueDate);
         const dateB = new Date(b.dueDate);
         return dateA - dateB; // 按到期日期升序排序
       });
+      sortedTodos = sortedTodos.filter(todo => todo.status !== '已完成'); // 过滤已完成的
+      sortedTodos.push(...todos.value.filter(todo => todo.status === '已完成')); // 放到最后
+      return sortedTodos;
     };
 
     // 根据 id 获取单个 todo
@@ -190,5 +192,6 @@ export default {
   display: flex;
   justify-content: center;
   cursor: pointer;
+  margin-bottom: 7px;
 }
 </style>

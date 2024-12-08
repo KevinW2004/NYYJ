@@ -231,6 +231,10 @@ export const markTodoAsOverdue = async () => {
         if (todo.status !== "已完成" && todo.dueDate < currentDate) {
             todo.status = "已逾期"; // 状态改为逾期
         }
+        // 如果任务已完成，且过期了，则删除该任务
+        if (todo.status === "已完成" && todo.dueDate < currentDate) {
+            termData.todoList.splice(termData.todoList.indexOf(todo), 1); // 删除该任务
+        }
     });
 
     await saveCurrentTermData(termData); // 保存更新后的数据

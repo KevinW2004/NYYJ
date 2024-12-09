@@ -1,21 +1,14 @@
 <template>
   <v-container>
 
-    <div v-if="todos.length === 0">
-      <v-alert type="info" border="left" class="mb-3" color="rgb(143, 98, 148)">
-        <h3>暂无待办事项</h3>
+    <div v-if="todos.length === 0" style="min-width: 100%; margin-bottom: 20px;">
+      <v-alert type="info" color="rgb(143, 98, 148)">
+        <h4>本课暂无待办哦!</h4>
       </v-alert>
     </div>
 
     <v-row>
-      <v-col cols="12">
-
-        <v-card @click="isOpenAddTodoDialog = true" class="add-todo-btn" hover outlined>
-          <v-icon>mdi-plus</v-icon>
-        </v-card>
-
-        <!-- 添加待办事项 -->
-        <v-dialog v-model="isOpenAddTodoDialog" max-width="600px">
+      <v-dialog v-model="isOpenAddTodoDialog" max-width="600px">
         <v-card style="border-radius: 10px; position: relative;">
           <v-card-title style="background: #9370DB">
             <h3 style="color: white">添加待办事项</h3>
@@ -29,45 +22,53 @@
         </v-card>
       </v-dialog>
 
-        <v-card
-            v-for="todo in todos"
-            :key="todo.id"
-            @click="viewTodoDetails(todo.id)"
-            :style="{ cursor: 'pointer' }"
-            :class="getTodoClass(todo)"
-            class="mb-3"
-        >
-          <v-card-title class="d-flex justify-space-between align-center">
-            <div>
-              <h3 class="headline">{{ todo.title }}</h3>
-              <div class="subheading" style="font-size: 14px">{{ todo.course }}</div>
-              <div class="subheading" style="font-size: 14px">{{ formatDueDate(todo.dueDate) }}</div>
-            </div>
-            <v-avatar
-                @click.stop="toggleTodoStatus(todo.id)"
-                :class="{'completed': todo.status === '已完成'}"
-            >
-              <v-icon>{{ todo.status === '已完成' ? 'mdi-check-circle' : 'mdi-circle-outline' }}</v-icon>
-            </v-avatar>
-          </v-card-title>
-        </v-card>
-      </v-col>
+      <v-card
+          v-for="todo in todos"
+          :key="todo.id"
+          @click="viewTodoDetails(todo.id)"
+          :style="{ cursor: 'pointer' }"
+          :class="getTodoClass(todo)"
+          style="margin-bottom: 10px; width: 100%;"
+      >
+        <v-card-title class="d-flex justify-space-between align-center">
+          <div>
+            <h3 class="headline">{{ todo.title }}</h3>
+            <div class="subheading">{{ formatDueDate(todo.dueDate) }}</div>
+          </div>
+          <v-avatar
+              @click.stop="toggleTodoStatus(todo.id)"
+              :class="{'completed': todo.status === '已完成'}"
+          >
+            <v-icon>{{ todo.status === '已完成' ? 'mdi-check-circle' : 'mdi-circle-outline' }}</v-icon>
+          </v-avatar>
+        </v-card-title>
+      </v-card>
+      <v-card @click="isOpenAddTodoDialog = true" class="add-todo-btn" hover outlined>
+        <v-icon>mdi-plus</v-icon>
+      </v-card>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import {ref, onMounted} from 'vue';
-import { useStore } from 'vuex';
+import {ref, onMounted, watch, toRef} from 'vue';
+import {useStore} from 'vuex';
 import {getTodos, finishTodo, resetTodo, markTodoAsOverdue} from '@/utils/storage'; // 请根据你的项目实际路径调整
 import AddTodoItem from './AddTodoItem.vue';
-import { addTodo } from '@/utils/storage';
+import {addTodo} from '@/utils/storage';
 
 export default {
   components: {
     AddTodoItem,
   },
-  setup() {
+  props: {
+    courseName: {
+      type: String,
+      required: true,
+    },
+  },
+  setup(props) {
+    const courseName = toRef(props, 'courseName');
     const todos = ref([]);
     const store = useStore();
 
@@ -84,19 +85,26 @@ export default {
       console.log("新待办事项:", newTodo);
       isOpenAddTodoDialog.value = false; // 关闭弹窗
       await addTodo(newTodo);
-      fetchTodos()
+      await fetchTodos()
     };
 
     // 获取 todos 数据
     const fetchTodos = async () => {
       await markTodoAsOverdue();
       todos.value = await getTodos();
-      store.state._todoList = todos
-      if (store.state.todoDetail && store.state.todoDetail.id !== 0 && store.state.todoDetail.status === "已完成") {
-        store.state.todoDetail.id = 0;
-      }
+      console.log("Fetching todos...", courseName.value);
+      todos.value = todos.value.filter(todo => todo.course === courseName.value)
+      console.log("待办事项列表:", todos.value);
+      store.state._todoList = todos.value;
       todos.value = getSortedTodos();
     };
+
+    // 监听 courseName 变化，重新获取 todos
+    watch(courseName, async (newCourseName) => {
+      console.log("Course name changed to:", newCourseName);
+      courseName.value = newCourseName;
+      await fetchTodos();
+    });
 
     const toggleTodoStatus = async (id) => {
       const todo = todos.value.find(t => t.id === id);
@@ -133,7 +141,7 @@ export default {
 
     // 获取排序后的 todos
     const getSortedTodos = () => {
-      // 按到期日期排序，且已完成的放在最后
+      // 取出name === courseName的todo
       let sortedTodos = todos.value.slice().sort((a, b) => {
         const dateA = new Date(a.dueDate);
         const dateB = new Date(b.dueDate);
@@ -192,9 +200,21 @@ export default {
 }
 
 .add-todo-btn {
+  width: 100%;
   display: flex;
   justify-content: center;
   cursor: pointer;
-  margin-bottom: 7px;
+  margin-top: 7px;
+}
+
+.headline {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+.subheading {
+  font-size: 14px;
+  margin-bottom: 0;
 }
 </style>

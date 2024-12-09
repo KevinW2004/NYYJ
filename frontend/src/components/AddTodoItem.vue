@@ -1,6 +1,5 @@
 <template>
     <div>
-        <h3>添加待办事项</h3>
         <v-form ref="form" v-model="isFormValid">
         <!-- 任务标题 -->
         <v-text-field
@@ -74,7 +73,6 @@ export default {
     props: {
         onAddTodo: {
         type: Function,
-        required: true,
         },
     },
     setup(_, { emit }) {
@@ -103,7 +101,7 @@ export default {
             alert("请输入任务标题");
             return;
         }
-        
+
         if (!todo.value.course) {
             alert("请选择关联课程");
             return;
@@ -157,7 +155,7 @@ export default {
                 for(let i = 0; i < this.courseInfo.length; i++){
                     this.courses.push(this.courseInfo[i].name);
                 }
-                
+
             }catch(error){
                 console.error("fail:", error);
             }
@@ -176,4 +174,3 @@ h3 {
     font-size: 1.5rem;
 }
 </style>
-  

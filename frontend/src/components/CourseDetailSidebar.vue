@@ -24,7 +24,7 @@
           <v-text-field v-else v-model="editableCourseInfo.teacher" label="教师" dense outlined/>
         </p>
         <p><strong>课程备注：</strong>
-          <span v-if="!editMode" style="white-space: pre-wrap;">{{ courseInfo.remark }}</span>
+          <span v-if="!editMode" style="white-space: pre-wrap; word-wrap: break-word;">{{ courseInfo.remark }}</span>
           <v-textarea v-else v-model="editableCourseInfo.remark" label="课程描述" style="white-space: pre-wrap;" dense outlined />
         </p>
       </div>
@@ -71,14 +71,21 @@
       <v-btn v-if="editMode" @click="saveChanges" class="save-btn" color="blue">
         保存修改
       </v-btn>
+
+      <div v-if="!editMode" class="todo-container">
+        <h4> TODO 列表</h4>
+        <mini-todo-list :course-name="courseInfo.name"/>
+      </div>
     </div>
   </transition>
 </template>
 
 <script>
 import backgroundImg from '@/assets/blue-bg.jpg'
+import MiniTodoList from "@/components/MiniTodoList.vue";
 
 export default {
+  components: {MiniTodoList},
   props: {
     courseInfo: Object,
     isVisible: Boolean
@@ -322,5 +329,10 @@ export default {
   align-items: center;
   justify-content: center;
   margin-top: 10px;
+}
+
+.todo-container {
+  margin-top: 10px;
+  width: 100%;
 }
 </style>

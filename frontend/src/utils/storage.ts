@@ -177,13 +177,13 @@ export const addTodo = async (todo: Omit<TodoData, 'id' | 'status'>) => {
 };
 
 // 更新一个 todos 数据
-export const updateTodo = async (index: number, updatedTodo: TodoData) => {
+export const updateTodo = async ( updatedTodo: TodoData) => {
     const termData = await readCurrentTermData();
-    if (index >= 0 && index < termData.todoList.length) {
-        termData.todoList[index] = updatedTodo; // 更新指定的 todo
-        await saveCurrentTermData(termData); // 保存数据
-    } else {
-        throw new Error('Invalid todo index');
+    for(let i = 0; i < termData.todoList.length; i++){
+        if(termData.todoList[i].id === updatedTodo.id){
+            termData.todoList[i] = updatedTodo;
+            saveCurrentTermData(termData);
+        }
     }
 };
 // 删除一个 todos 数据

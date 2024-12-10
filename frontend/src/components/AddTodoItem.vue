@@ -67,7 +67,7 @@
 
 <script>
 import {ref} from "vue";
-import {getCourses, saveCourses} from "@/utils/storage";
+import {getCourses} from "@/utils/storage";
 
 export default {
   name: "AddTodoItem",
@@ -146,7 +146,6 @@ export default {
       showTimePicker,
       submitTodo,
       getCourses,
-      saveCourses,
       courseInfo,
     };
   },

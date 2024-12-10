@@ -89,10 +89,6 @@ export default {
     courseName: {
       type: String,
       required: true,
-    },
-    courses: {
-      type: Array,
-      required: true
     }
   },
   setup(props) {

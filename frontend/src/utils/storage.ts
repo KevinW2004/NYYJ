@@ -34,6 +34,7 @@ const DEFAULT_GLOBAL_CONFIG: GlobalConfig = {
 
 // 读取全局配置
 export const readGlobalConfig = async () => {
+    console.log("readGlobalConfig")
     if (!await checkFileExist(GLOBAL_CONFIG_FILE)) {
         await saveDataToFile(GLOBAL_CONFIG_FILE, DEFAULT_GLOBAL_CONFIG);
         await createNewTerm({ name: "新学期1", totalWeeks: 17, startDate: new Date().toISOString() });
@@ -45,6 +46,7 @@ export const readGlobalConfig = async () => {
 
 // 写入全局配置
 export const writeGlobalConfig = async (config: GlobalConfig) => {
+    console.log("writeGlobalConfig")
     try {
         await saveDataToFile(GLOBAL_CONFIG_FILE, config);
     } catch (error) {
@@ -55,12 +57,14 @@ export const writeGlobalConfig = async (config: GlobalConfig) => {
 
 // 获取当前激活学期
 export const getCurrentTerm = async () => {
+    console.log("getCurrentTerm")
     const config = await readGlobalConfig();
     return config.currentTerm;
 };
 
 // 设置当前激活学期
 export const setCurrentTerm = async (term: string) => {
+    console.log("setCurrentTerm")
     const config = await readGlobalConfig();
     config.currentTerm = term; // 更新当前学期
     await writeGlobalConfig(config); // 写回配置文件
@@ -68,6 +72,7 @@ export const setCurrentTerm = async (term: string) => {
 
 // 读取特定学期的数据
 export const readTermData = async (term: string) => {
+    console.log("readTermData")
     const termFilePath = `${BASE_PATH}${term}.json`;
     console.log('reading term path:', termFilePath);
     try {
@@ -81,6 +86,7 @@ export const readTermData = async (term: string) => {
 
 // 保存特定学期的数据
 export const saveTermData = async (term: string, data: any) => {
+    console.log("saveTermData")
     const termFilePath = `${BASE_PATH}${term}.json`;
     try {
         await saveDataToFile(termFilePath, data);
@@ -92,6 +98,7 @@ export const saveTermData = async (term: string, data: any) => {
 
 // 读取当前学期的数据
 export const readCurrentTermData = async () => {
+    console.log("readCurrentTermData")
     const currentTerm = await getCurrentTerm();
     console.log('reading currentTerm:', currentTerm);
     return await readTermData(currentTerm);
@@ -99,11 +106,13 @@ export const readCurrentTermData = async () => {
 
 // 保存当前学期的数据
 export const saveCurrentTermData = async (data: any) => {
+    console.log("saveCurrentTermData")
     const currentTerm = await getCurrentTerm();
     await saveTermData(currentTerm, data);
 };
 
 export const createNewTerm = async (termData: any) => {
+    console.log("createNewTerm")
     const config = await readGlobalConfig();
     const term = termData.name || `新学期${config.terms.length + 1}`;
     config.terms.push(term); // 增加新学期
@@ -123,6 +132,7 @@ export const createNewTerm = async (termData: any) => {
 
 // 删除学期
 export const deleteTerm = async (term: string) => {
+    console.log("deleteTerm")
     const config = await readGlobalConfig();
     const index = config.terms.indexOf(term);
     if (index !== -1) {
@@ -138,12 +148,14 @@ export const deleteTerm = async (term: string) => {
 
 // 获取当前学期的 courses 数据
 export const getCourses = async () => {
+    console.log("getCourses")
     const termData = await readCurrentTermData();
     return termData.courses;
 };
 
 // 保存当前学期的 courses 数据
 export const saveCourses = async (courses: any) => {
+    console.log("saveCourses")
     const termData = await readCurrentTermData();
     termData.courses = courses;
     await saveCurrentTermData(termData);
@@ -151,13 +163,20 @@ export const saveCourses = async (courses: any) => {
 
 // 读取当前学期的 todos 数据
 export const getTodos = async () => {
+    console.log("getTodos")
     const termData = await readCurrentTermData();
-    const todos = termData.todoList || [];
-    return todos;
+    return termData.todoList || [];
+};
+
+export const setTodos = async (todos: any) => {
+    const termData = await readCurrentTermData();
+    termData.todoList = todos;
+    await saveCurrentTermData(termData);
 };
 
 // 增加一个 todos 数据
 export const addTodo = async (todo: Omit<TodoData, 'id' | 'status'>) => {
+    console.log("addTodo")
     const termData = await readCurrentTermData();
 
     // 自动生成 ID，假设 ID 是递增的
@@ -178,6 +197,7 @@ export const addTodo = async (todo: Omit<TodoData, 'id' | 'status'>) => {
 
 // 更新一个 todos 数据
 export const updateTodo = async ( updatedTodo: TodoData) => {
+    console.log("updateTodo")
     const termData = await readCurrentTermData();
     for(let i = 0; i < termData.todoList.length; i++){
         if(termData.todoList[i].id === updatedTodo.id){
@@ -188,6 +208,7 @@ export const updateTodo = async ( updatedTodo: TodoData) => {
 };
 // 删除一个 todos 数据
 export const deleteTodo = async (index: number) => {
+    console.log("deleteTodo")
     const termData = await readCurrentTermData();
     if (index >= 0 && index < termData.todoList.length) {
         termData.todoList.splice(index, 1); // 删除指定的 todo
@@ -199,6 +220,7 @@ export const deleteTodo = async (index: number) => {
 
 // 添加完成任务的方法
 export const finishTodo = async (id: number) => {
+    console.log("finishTodo")
     const termData = await readCurrentTermData();
     const todo = termData.todoList.find(todo => todo.id === id);
     if (todo) {
@@ -211,6 +233,7 @@ export const finishTodo = async (id: number) => {
 
 // 添加重置任务的方法
 export const resetTodo = async (id: number) => {
+    console.log("resetTodo")
     const termData = await readCurrentTermData();
     const todo = termData.todoList.find(todo => todo.id === id);
     if (todo) {
@@ -223,6 +246,7 @@ export const resetTodo = async (id: number) => {
 
 // 将任务标记为逾期
 export const markTodoAsOverdue = async () => {
+    console.log("markTodoAsOverdue")
     const termData = await readCurrentTermData();
     const currentDate = new Date().toISOString(); // 获取当前时间
 

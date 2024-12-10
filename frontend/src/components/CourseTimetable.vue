@@ -71,7 +71,8 @@
           </v-card-title>
           <v-card-text>
             <v-form ref="form" v-model="isFormValid" class="space-y-4">
-              <v-text-field v-model="newCourse.name" label="课程名称" outlined required></v-text-field>
+              <v-text-field v-model="newCourse.name" label="课程名称"  required dense></v-text-field>
+              <span v-if="nameError" class="error-text" style="margin-bottom: 10px">{{ nameError }}</span>
               <v-text-field v-model="newCourse.teacher" label="教师名字" outlined required></v-text-field>
               <v-textarea v-model="newCourse.description" label="课程备注" outlined></v-textarea>
 
@@ -99,6 +100,8 @@
 
               <!-- 新增课时按钮 -->
               <v-btn @click="openNewSessionDialog" color="primary">新增课时</v-btn>
+              <br>
+              <span v-if="sessionsError" class="error-text">{{ sessionsError }}</span>
             </v-form>
           </v-card-text>
           <v-card-actions>
@@ -276,6 +279,8 @@ export default {
       // 详细信息
       selectedCourseInfo: null,
       isSidebarVisible: false,
+      nameError: "",
+      sessionsError: ""
     };
   },
 
@@ -331,6 +336,22 @@ export default {
 
     // 新增课程
     async addCourse() {
+      if (!this.newCourse.name) {
+        this.nameError = "课程名称不能为空"
+      } else {
+        this.nameError = ""
+      }
+
+      if (this.newCourse.sessions.length === 0) {
+        this.sessionsError = "请添加至少一个课时组合"
+      } else {
+        this.sessionsError = ""
+      }
+
+      // 如果有错误，不保存课程
+      if (!this.newCourse.name || this.newCourse.sessions.length === 0) {
+        return;
+      }
       try {
         this.transformCourseData()
         // await saveDataToFile(this.storePath, this.courseInfos);
@@ -374,12 +395,23 @@ export default {
     },
 
     showCourseDetails(course) {
-      const courseInfo = this.courseInfoMap[course.key];
-      this.selectedCourseInfo = courseInfo;
-      this.isSidebarVisible = true;
-
-      // 调整 main-timetable-container 的宽度
-      this.mainContainerWidth = '70%'; // 缩小为 70%，可以根据需要调整这个值
+      console.log("显示课程详情")
+      console.log(course)
+      if (this.selectedCourseInfo && this.selectedCourseInfo.key === course.key)
+        return;
+      this.selectedCourseInfo = {...this.courseInfoMap[course.key]};
+      if (this.isSidebarVisible) {
+        this.closeSidebar()
+        setTimeout(() => {
+          this.isSidebarVisible = true;
+          // 调整 main-timetable-container 的宽度
+          this.mainContainerWidth = '73%'; // 缩小为 70%，可以根据需要调整这个值
+        }, 200);
+      }
+      else {
+        this.isSidebarVisible = true;
+        this.mainContainerWidth = '73%'
+      }
     },
 
     closeSidebar() {
@@ -389,6 +421,8 @@ export default {
     },
 
     async updateSelectedCourseInfo(updatedCourseInfo) {
+      console.log("保存课程修改")
+      console.log(updatedCourseInfo)
       for (let i = 0; i < this.courseInfos.length; i++) {
         if (this.courseInfos[i].key === updatedCourseInfo.key) {
           this.courseInfos[i] = updatedCourseInfo
@@ -399,6 +433,7 @@ export default {
         }
       }
     },
+
 
     // 课程转换
     transformCourseData() {
@@ -887,6 +922,5 @@ export default {
   margin-top: -4px; /* 使错误提示紧贴在输入框下方 */
   line-height: 1.2;
 }
-
 </style>
 

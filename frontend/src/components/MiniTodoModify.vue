@@ -23,41 +23,42 @@
           label="任务详情"
           outlined
       ></v-textarea>
+      <v-row style="margin-bottom: 10px">
+        <!-- 日期选择器 -->
+        <v-date-input
+            v-model="selectedDate"
+            label="截止日期"
+            outlined
+            required
+            style="margin-right: 10px"
+        ></v-date-input>
 
-      <!-- 日期选择器 -->
-      <v-date-input
-          v-model="selectedDate"
-          label="截止日期"
-          outlined
-          required
-      ></v-date-input>
+        <!-- 时间选择器文本框 -->
+        <v-text-field
+            v-model="selectedTime"
+            label="截止时间"
+            outlined
+            readonly
+            @click="showTimePicker = true"
+        ></v-text-field>
 
-      <!-- 时间选择器文本框 -->
-      <v-text-field
-          v-model="selectedTime"
-          label="截止时间"
-          outlined
-          readonly
-          @click="showTimePicker = true"
-      ></v-text-field>
-
-      <!-- 时间选择器弹窗 -->
-      <v-dialog v-model="showTimePicker" max-width="290px">
-        <v-card>
-          <v-time-picker
-              v-model="selectedTime"
-              format="24hr"
-              scrollable
-          ></v-time-picker>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn text color="primary" @click="showTimePicker = false">
-              确定
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
+        <!-- 时间选择器弹窗 -->
+        <v-dialog v-model="showTimePicker" max-width="290px">
+          <v-card>
+            <v-time-picker
+                v-model="selectedTime"
+                format="24hr"
+                scrollable
+            ></v-time-picker>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text color="primary" @click="showTimePicker = false">
+                确定
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
       <!-- 保存按钮 -->
       <v-btn color="success" @click="submitTodo">保存</v-btn>
     </v-form>

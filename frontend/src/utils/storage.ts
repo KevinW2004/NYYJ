@@ -165,8 +165,13 @@ export const saveCourses = async (courses: any) => {
 export const getTodos = async () => {
     console.log("getTodos")
     const termData = await readCurrentTermData();
-    const todos = termData.todoList || [];
-    return todos;
+    return termData.todoList || [];
+};
+
+export const setTodos = async (todos: any) => {
+    const termData = await readCurrentTermData();
+    termData.todoList = todos;
+    await saveCurrentTermData(termData);
 };
 
 // 增加一个 todos 数据

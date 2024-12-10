@@ -14,7 +14,7 @@
             <h3 style="color: white">添加待办事项</h3>
           </v-card-title>
           <v-card-text>
-            <AddTodoItem @add-todo="addTodoItemHandler"/>
+            <AddTodoItem :selected-course="courseName" @add-todo="addTodoItemHandler"/>
           </v-card-text>
           <v-card-actions style="position: absolute; bottom: 10px; right: 10px;">
             <v-btn color="error" @click="closeDialog">关闭</v-btn>

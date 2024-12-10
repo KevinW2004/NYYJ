@@ -396,10 +396,12 @@ export default {
 
     showCourseDetails(course) {
       this.selectedCourseInfo = {...this.courseInfoMap[course.key]};
-      this.isSidebarVisible = true;
-
-      // 调整 main-timetable-container 的宽度
-      this.mainContainerWidth = '70%'; // 缩小为 70%，可以根据需要调整这个值
+      this.closeSidebar()
+      setTimeout(() => {
+        this.isSidebarVisible = true;
+        // 调整 main-timetable-container 的宽度
+        this.mainContainerWidth = '70%'; // 缩小为 70%，可以根据需要调整这个值
+      }, 50);
     },
 
     closeSidebar() {

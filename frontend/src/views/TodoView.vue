@@ -19,7 +19,8 @@ import TodoDetail from "@/components/TodoDetail.vue";
 .container {
   display: flex;
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 65px);
+  overflow: auto;
   position: relative;
   background:  rgba(200, 162, 255, 0.5);
 }
@@ -42,6 +43,7 @@ import TodoDetail from "@/components/TodoDetail.vue";
   padding: 7px;
   box-sizing: border-box;
   overflow-y: auto;
+  flex-shrink: 0;
 }
 
 /* 右侧详情区域 */

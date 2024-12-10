@@ -24,13 +24,15 @@
             label="任务详情"
             outlined
         ></v-textarea>
-
-        <!-- 日期选择器 -->
+        
+        <v-row style="margin-bottom: 10px;">
+           <!-- 日期选择器 -->
         <v-date-input
             v-model="selectedDate"
             label="截止日期"
             outlined
             required
+            style="margin-right: 10px;"
         ></v-date-input>
 
         <!-- 时间选择器文本框 -->
@@ -57,7 +59,10 @@
                 </v-btn>
             </v-card-actions>
             </v-card>
-        </v-dialog>
+        </v-dialog> 
+        
+        </v-row>
+        
 
         <!-- 保存按钮 -->
         <v-btn color="success" @click="submitTodo">保存</v-btn>

@@ -13,27 +13,27 @@
 
       <!-- 课程名居中显示 -->
       <h1 class="course-name">
-        <span v-if="!editMode">{{ courseInfo.name }}</span>
+        <span v-if="!editMode">{{ courseInfo_copy.name }}</span>
         <v-text-field v-else v-model="editableCourseInfo.name" label="课程名" dense outlined/>
       </h1>
 
       <!-- 教师和课程描述信息 -->
       <div class="course-info">
         <p><strong>教师：</strong>
-          <span v-if="!editMode">{{ courseInfo.teacher }}</span>
+          <span v-if="!editMode">{{ courseInfo_copy.teacher }}</span>
           <v-text-field v-else v-model="editableCourseInfo.teacher" label="教师" dense outlined/>
         </p>
         <p><strong>课程备注：</strong>
-          <span v-if="!editMode" style="white-space: pre-wrap; word-wrap: break-word;">{{ courseInfo.remark }}</span>
+          <span v-if="!editMode" style="white-space: pre-wrap; word-wrap: break-word;">{{ courseInfo_copy.remark }}</span>
           <v-textarea v-else v-model="editableCourseInfo.remark" label="课程描述" style="white-space: pre-wrap;" dense outlined />
         </p>
       </div>
 
       <!-- 课时信息 (可展开/隐藏) -->
       <transition name="expand-fade">
-        <div v-if="isDetailsVisible && Array.isArray(courseInfo.session_for_show) && courseInfo.session_for_show.length > 0"
+        <div v-if="isDetailsVisible && Array.isArray(courseInfo_copy.session_for_show) && courseInfo_copy.session_for_show.length > 0"
              class="course-sessions">
-          <div v-for="(course, index) in courseInfo.session_for_show" :key="index" class="course-session">
+          <div v-for="(course, index) in courseInfo_copy.session_for_show" :key="index" class="course-session">
             <h3>课时 {{ index + 1 }}</h3>
             <div class="session-details">
               <p><strong>地点：</strong>
@@ -74,7 +74,7 @@
 
       <div v-if="!editMode" class="todo-container">
         <h4> TODO 列表</h4>
-        <mini-todo-list :course-name="courseInfo.name"/>
+        <mini-todo-list :course-name="courseInfo_copy.name"/>
       </div>
     </div>
   </transition>
@@ -92,6 +92,7 @@ export default {
   },
   data() {
     return {
+      courseInfo_copy: {...this.courseInfo},
       backgroundImg,
       isDetailsVisible: false, // 控制课时信息的显示/隐藏
       editMode: false, // 控制编辑模式
@@ -119,8 +120,8 @@ export default {
     isVisible(newVal) {
       if (newVal === true) {
         // 当 isVisible 从 false 变为 true 时，更新 editableCourseInfo
+        this.courseInfo_copy = {...this.courseInfo};
         this.editableCourseInfo = { ...this.courseInfo };
-        console.log(this.editableCourseInfo)
       }
     },
     'editableCourseInfo.session_for_show': {
@@ -149,6 +150,7 @@ export default {
     close() {
       this.$emit('close');
       this.isDetailsVisible = false;
+      this.editMode = false
     },
     toggleCourseDetails() {
       this.isDetailsVisible = !this.isDetailsVisible;
@@ -208,6 +210,7 @@ export default {
       }
       this.editableCourseInfo.courses = transformedCourses
       this.$emit('update-course', this.editableCourseInfo)
+      this.courseInfo_copy = this.editableCourseInfo
       this.editMode = !this.editMode
     },
 

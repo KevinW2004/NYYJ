@@ -152,8 +152,13 @@ export const saveCourses = async (courses: any) => {
 // 读取当前学期的 todos 数据
 export const getTodos = async () => {
     const termData = await readCurrentTermData();
-    const todos = termData.todoList || [];
-    return todos;
+    return termData.todoList || [];
+};
+
+export const setTodos = async (todos: any) => {
+    const termData = await readCurrentTermData();
+    termData.todoList = todos;
+    await saveCurrentTermData(termData);
 };
 
 // 增加一个 todos 数据

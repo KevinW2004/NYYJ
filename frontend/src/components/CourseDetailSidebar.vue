@@ -83,6 +83,7 @@
 <script>
 import backgroundImg from '@/assets/blue-bg.jpg'
 import MiniTodoList from "@/components/MiniTodoList.vue";
+import {getTodos, setTodos} from "@/utils/storage";
 
 export default {
   components: {MiniTodoList},
@@ -160,7 +161,7 @@ export default {
       return `${startWeek}-${endWeek} (${weekType})`;
     },
 
-    saveChanges() {
+    async saveChanges() {
       this.editableCourseInfo.session_for_show.map(session => {
         session.weeks = this.generateWeeks(session.startWeek, session.endWeek, session.weekType)
         return {
@@ -168,7 +169,7 @@ export default {
         }
       })
       const parseWeeks = (startWeek, endWeek, weekType) => {
-        let result = Array.from({ length: endWeek - startWeek + 1 }, (_, i) => startWeek + i);
+        let result = Array.from({length: endWeek - startWeek + 1}, (_, i) => startWeek + i);
         if (weekType.includes('单周')) {
           return result.filter(week => week % 2 !== 0)
         } else if (weekType.includes('双周')) {
@@ -209,6 +210,17 @@ export default {
         transformedCourses[i].color = this.editableCourseInfo.courses[i].color
       }
       this.editableCourseInfo.courses = transformedCourses
+      // 更改如果修改了课程名字，则同步修改todo列表，里面绑定的course也要同步修改
+      if (this.editableCourseInfo.name !== this.courseInfo_copy.name) {
+        const todoList = await getTodos()
+        for (let i = 0; i < todoList.length; i++) {
+          if (todoList[i].courseName === this.courseInfo_copy.name) {
+            todoList[i].courseName = this.editableCourseInfo.name
+          }
+        }
+        await setTodos(todoList)
+      }
+
       this.$emit('update-course', this.editableCourseInfo)
       this.courseInfo_copy = this.editableCourseInfo
       this.editMode = !this.editMode

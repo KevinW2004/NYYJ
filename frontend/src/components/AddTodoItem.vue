@@ -11,6 +11,7 @@
 
       <!-- 关联课程 -->
       <v-select
+          :disabled="isCourseSelected"
           v-model="todo.course"
           :items="courses"
           label="课程"
@@ -75,6 +76,7 @@ export default {
     onAddTodo: {
       type: Function,
     },
+    selectedCourse: String
   },
   setup(_, {emit}) {
     const todo = ref({
@@ -85,6 +87,8 @@ export default {
       status: "未完成", // 默认状态
       dueDate: "", // 由用户选择并设置
     });
+
+    const isCourseSelected = ref(false)
 
     // 定义课程数组
     const courses = ref([]);
@@ -148,6 +152,7 @@ export default {
       getCourses,
       saveCourses,
       courseInfo,
+      isCourseSelected,
     };
   },
 
@@ -167,6 +172,10 @@ export default {
   },
 
   mounted() {
+    if (this.selectedCourse) {
+      this.todo.course = this.selectedCourse;
+      this.isCourseSelected = true;
+    }
     this.loadTimetable();
   }
 };

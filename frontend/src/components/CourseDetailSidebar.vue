@@ -214,8 +214,8 @@ export default {
       if (this.editableCourseInfo.name !== this.courseInfo_copy.name) {
         const todoList = await getTodos()
         for (let i = 0; i < todoList.length; i++) {
-          if (todoList[i].courseName === this.courseInfo_copy.name) {
-            todoList[i].courseName = this.editableCourseInfo.name
+          if (todoList[i].course === this.courseInfo_copy.name) {
+            todoList[i].course = this.editableCourseInfo.name
           }
         }
         await setTodos(todoList)
@@ -228,7 +228,6 @@ export default {
 
     removeCourse() {
       this.$emit('remove-course', this.courseInfo)
-
     }
   }
 };

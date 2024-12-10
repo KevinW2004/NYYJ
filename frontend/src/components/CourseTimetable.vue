@@ -395,13 +395,23 @@ export default {
     },
 
     showCourseDetails(course) {
+      console.log("显示课程详情")
+      console.log(course)
+      if (this.selectedCourseInfo && this.selectedCourseInfo.key === course.key)
+        return;
       this.selectedCourseInfo = {...this.courseInfoMap[course.key]};
-      this.closeSidebar()
-      setTimeout(() => {
+      if (this.isSidebarVisible) {
+        this.closeSidebar()
+        setTimeout(() => {
+          this.isSidebarVisible = true;
+          // 调整 main-timetable-container 的宽度
+          this.mainContainerWidth = '73%'; // 缩小为 70%，可以根据需要调整这个值
+        }, 200);
+      }
+      else {
         this.isSidebarVisible = true;
-        // 调整 main-timetable-container 的宽度
-        this.mainContainerWidth = '70%'; // 缩小为 70%，可以根据需要调整这个值
-      }, 50);
+        this.mainContainerWidth = '73%'
+      }
     },
 
     closeSidebar() {

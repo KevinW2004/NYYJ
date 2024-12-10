@@ -270,18 +270,21 @@ export default {
 
 .expand-fade-enter-active,
 .expand-fade-leave-active {
-  transition: max-height 0.3s ease-out;
+  transition: min-height 0.5s ease, opacity 0.5s ease;
   overflow: hidden;
+  opacity: 1;
 }
 
 .expand-fade-enter-from,
 .expand-fade-leave-to {
-  max-height: 0;
+  min-height: 0;
+  opacity: 0;
 }
 
 .expand-fade-enter-to,
 .expand-fade-leave-from {
-  max-height: 500px;
+  min-height: fit-content;
+  opacity: 1;
 }
 
 .btn-row {

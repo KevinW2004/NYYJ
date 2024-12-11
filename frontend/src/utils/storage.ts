@@ -153,6 +153,12 @@ export const getCourses = async () => {
     return termData.courses;
 };
 
+export const getTermLenthAndStartDate = async () => {
+    console.log("getTermLenthAndStartDate")
+    const termData = await readCurrentTermData();
+    return { totalWeeks: termData.totalWeeks, startDate: termData.startDate };
+};
+
 // 保存当前学期的 courses 数据
 export const saveCourses = async (courses: any) => {
     console.log("saveCourses")

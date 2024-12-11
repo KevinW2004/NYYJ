@@ -181,6 +181,7 @@ export default {
         (newTodoDetail) => {
           todo.value = newTodoDetail;
           setEvents();
+          editTodo.value = newTodoDetail;
         },
         {immediate: true}
     );

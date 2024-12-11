@@ -6,17 +6,20 @@
           <v-card class="todo-card">
             <v-row class="btn-row">
               <!-- 返回按钮 -->
-              <v-btn icon @click="clearTodo" class="back-btn">
+              <v-btn v-if="!editMode" icon @click="clearTodo" class="back-btn">
                 <v-icon>mdi-arrow-left</v-icon>
               </v-btn>
+              <v-btn v-else icon @click="cancelEdit" class="back-btn">
+                <v-icon>mdi-close-circle-outline</v-icon>
+              </v-btn>
               <!--显示编辑按钮 -->
-              <v-btn icon="mdi-pencil" color="green" size="small" style="margin-right: 7px;" @click="edit"/>
+              <v-btn icon="mdi-pencil" color="green" size="small" style="margin-right: 7px;" @click="edit" v-if="!editMode"/>
             </v-row>
             
             <!-- 标题和课程 -->
             <v-card-title class="title-container">
               <div class="headline" v-if="!editMode">{{ todo.title }}</div>
-              <v-text-field v-else v-model="editTodo.title" label="任务标题" outlined></v-text-field>
+              <v-text-field v-else v-model="editTodo.title" label="任务标题" outlined  style="width: 200px;"></v-text-field>
             </v-card-title>
 
             <!-- 信息展示区域 -->
@@ -53,8 +56,13 @@
                         label="截止日期"
                         outlined
                         required
-                        style="margin-right: 10px;"
-                    ></v-date-input>
+                        style="
+                          margin-right: 10px;
+                          margin-left:13px;
+                        "
+                        prepend-icon="mdi-calendar"
+                    >
+                  </v-date-input>
 
                     <!-- 时间选择器文本框 -->
                     <v-text-field
@@ -86,11 +94,13 @@
             </v-card-text>
 
             <!-- 日历区域 -->
-            <v-col cols="12">
+            <v-col cols="12" v-if ="!editMode">
               <v-sheet class="calendar">
                 <v-calendar :events="events"></v-calendar>
               </v-sheet>
             </v-col>
+
+            <v-btn color="green" @click="edit" style="margin-top: 10px;" v-if="editMode">保存修改</v-btn>
           </v-card>
         </v-col>
       </v-row>
@@ -119,7 +129,7 @@ export default {
   components: {
     TodoCalendar,
     VCalendar,
-  },
+  }, 
   setup() {
     const events = ref([]);
     
@@ -169,6 +179,15 @@ export default {
         },
         {immediate: true}
     );
+    watch (
+      () => todo.value,
+      (newVal, oldVal) => {
+        if (editMode.value) {
+          cancelEdit();
+        }
+        
+      }
+    );
 
     // 格式化到期日期
     const formatDueDate = (dueDate) => {
@@ -185,6 +204,7 @@ export default {
 
     // 清空 Todo
     const clearTodo = () => {
+      
       todo.value = {
         id: 0,
         course: '',
@@ -193,15 +213,14 @@ export default {
         status: '',
         dueDate: ''
       };
-      editTodo.value = {
-        id: 0,
-        course: '',
-        title: '',
-        description: '',
-        status: '',
-        dueDate: ''
-      };
+      if(editMode.value){
+        editMode.value = false;
+      }
+      if(isDetailsVisible.value){
+        isDetailsVisible.value = false;
+      }
       store.commit('set_todo_detail', todo)
+      
     };
     const editMode = ref(false);
     const isDetailsVisible = ref(false);
@@ -226,10 +245,21 @@ export default {
         date.setHours(hours, minutes);
         
         editTodo.value.dueDate = date.toISOString();
+        let currentDate = new Date().toISOString;
+        if(date < currentDate){
+          editTodo.value.status = "已逾期";
+        } else {
+          editTodo.value.status = "未完成";
+        }
         todo.value = {...editTodo.value};
+        
+        console.log("updateTodo :",editTodo);
         updateTodo(todo.value);
       }
     }; 
+    const cancelEdit = () => {
+      editMode.value = !editMode.value;
+    };
 
     watch(
       isDetailsVisible,
@@ -277,6 +307,7 @@ export default {
       edit,
       getCourses,
       loadTimetable,
+      cancelEdit
     };
   }
 };
@@ -374,4 +405,11 @@ export default {
   justify-content: flex-end;
   padding-right: 15px;
 }
+
+.custom-date-input .v-input__icon {
+  color: blue; /* 修改v-date-input的图标颜色，使其与上下文相匹配 */
+  margin-right: 10px;
+  margin-left:13px;
+}
+
 </style>

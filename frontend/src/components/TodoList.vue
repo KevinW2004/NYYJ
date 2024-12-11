@@ -61,7 +61,7 @@ import {ref, onMounted} from 'vue';
 import { useStore } from 'vuex';
 import {getTodos, finishTodo, resetTodo, markTodoAsOverdue} from '@/utils/storage'; // 请根据你的项目实际路径调整
 import AddTodoItem from './AddTodoItem.vue';
-import { addTodo } from '@/utils/storage';
+import { addTodo,updateTodo} from '@/utils/storage';
 
 export default {
   components: {
@@ -168,7 +168,7 @@ export default {
       formatDueDate,
       getTodoClass,
       getSortedTodos,
-      viewTodoDetails,
+      viewTodoDetails
     };
   }
 };

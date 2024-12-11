@@ -38,7 +38,7 @@ export const readGlobalConfig = async () => {
     console.log("readGlobalConfig")
     if (!await checkFileExist(GLOBAL_CONFIG_FILE)) {
         await saveDataToFile(GLOBAL_CONFIG_FILE, DEFAULT_GLOBAL_CONFIG);
-        await createNewTerm({ name: "新学期1", totalWeeks: 17, startDate: new Date().toISOString() });
+        await createNewTerm({ name: "新学期1", totalWeeks: 17, startDate: new Date("2024-9-2").toLocaleString() });
     }
     const config = await readFile(GLOBAL_CONFIG_FILE);
     // return JSON.parse(config) as GlobalConfig;
@@ -122,7 +122,7 @@ export const createNewTerm = async (termData: any) => {
     const newTermData = {
         name: term,
         totalWeeks: termData.totalWeeks || 17,
-        startDate: termData.startDate || new Date().toLocaleString(),
+        startDate: termData.startDate || new Date("2024-9-2").toLocaleString(),
         courses: termData.courses || [],
         todoList: termData.todoList || []
     };

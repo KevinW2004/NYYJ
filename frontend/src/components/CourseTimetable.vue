@@ -397,7 +397,7 @@ export default {
     showCourseDetails(course) {
       console.log("显示课程详情")
       console.log(course)
-      if (this.selectedCourseInfo && this.selectedCourseInfo.key === course.key)
+      if (this.isSidebarVisible && this.selectedCourseInfo && this.selectedCourseInfo.key === course.key)
         return;
       this.selectedCourseInfo = {...this.courseInfoMap[course.key]};
       if (this.isSidebarVisible) {

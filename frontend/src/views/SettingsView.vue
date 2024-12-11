@@ -182,7 +182,7 @@ export default {
       }
       const newTerm = {
         name: newTermName.value,
-        startDate: startDate.value.toISOString().split('T')[0],
+        startDate: startDate.value.toLocaleString().split('T')[0],
         totalWeeks: totalWeeks.value,
         courses: [],
       };

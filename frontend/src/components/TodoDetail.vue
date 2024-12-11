@@ -6,15 +6,15 @@
           <v-card class="todo-card">
             <v-row class="btn-row">
               <!-- 返回按钮 -->
-              <v-btn v-if="!editMode" icon @click="clearTodo" class="back-btn">
+              <v-btn v-if="!editMode" icon @click="clearTodo" class="back-btn" size="small">
                 <v-icon>mdi-arrow-left</v-icon>
               </v-btn>
-              <v-btn v-else icon @click="cancelEdit" class="back-btn">
-                <v-icon>mdi-close-circle-outline</v-icon>
+              <v-btn v-else icon @click="cancelEdit" class="back-btn" size="small">
+                <v-icon>mdi-close</v-icon>
               </v-btn>
               <!--显示编辑按钮 -->
               <v-btn v-if="!editMode"
-                  icon="mdi-pencil" color="green" size="small" style="margin-right: 7px;" @click="edit" />
+                  icon="mdi-pencil"  size="small" color="green" style="margin-left: 50px;" class="back-btn" @click="edit" />
             </v-row>
 
             <!-- 标题和课程 -->
@@ -105,7 +105,8 @@
               </v-sheet>
             </v-col>
 
-            <v-btn color="green" @click="edit" style="margin-top: 10px;" v-if="editMode">保存修改</v-btn>
+            <v-btn color="green" @click="edit" v-if="editMode"
+             style="margin-top: 10px; width: 200px; align-self: center;">保存修改</v-btn>
           </v-card>
         </v-col>
       </v-row>
@@ -252,15 +253,18 @@ export default {
 
         editTodo.value.dueDate = date.toISOString();
         let currentDate = new Date().toISOString;
-        if (date < currentDate) {
-          editTodo.value.status = "已逾期";
-        } else {
-          editTodo.value.status = "未完成";
+        if (editTodo.value.status !== "已完成") {
+          if (editTodo.value.dueDate < currentDate) {
+            editTodo.value.status = "已逾期";
+          } else {
+            editTodo.value.status = "未完成";
+          }
         }
         todo.value = {...editTodo.value};
 
         console.log("updateTodo :", editTodo);
         await updateTodo(todo.value);
+        store.commit('set_todo_detail', todo.value);
         store.commit('SET_TODO_LIST', []);
       }
     };

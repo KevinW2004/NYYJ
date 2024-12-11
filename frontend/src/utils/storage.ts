@@ -203,7 +203,7 @@ export const updateTodo = async ( updatedTodo: TodoData) => {
     for(let i = 0; i < termData.todoList.length; i++){
         if(termData.todoList[i].id === updatedTodo.id){
             termData.todoList[i] = updatedTodo;
-            saveCurrentTermData(termData);
+            await saveCurrentTermData(termData);
         }
     }
 };

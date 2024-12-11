@@ -1,4 +1,5 @@
 import {checkFileExist, deleteFile, readFile, saveDataToFile} from "./file";
+import store from "@/store";
 
 const BASE_PATH = 'D:/NYYJ-Storage/'
 const GLOBAL_CONFIG_FILE = `${BASE_PATH}global_config.json`
@@ -238,6 +239,13 @@ export const resetTodo = async (id: number) => {
     const todo = termData.todoList.find(todo => todo.id === id);
     if (todo) {
         todo.status = "未完成";
+        if (todo.dueDate) {
+            const currentDate = new Date().toISOString(); // 获取当前时间
+            const dueDate = new Date(todo.dueDate).toISOString(); // 任务截止日期
+            if (currentDate > dueDate) {
+                todo.status = "已逾期"; // 状态改为逾期
+            }
+        }
         await saveCurrentTermData(termData);
     } else {
         throw new Error("Todo not found");

@@ -57,11 +57,11 @@
 </template>
 
 <script>
-import {ref, onMounted} from 'vue';
+import {ref, onMounted, watch} from 'vue';
 import { useStore } from 'vuex';
 import {getTodos, finishTodo, resetTodo, markTodoAsOverdue} from '@/utils/storage'; // 请根据你的项目实际路径调整
 import AddTodoItem from './AddTodoItem.vue';
-import { addTodo,updateTodo} from '@/utils/storage';
+import { addTodo } from '@/utils/storage';
 
 export default {
   components: {
@@ -84,19 +84,24 @@ export default {
       console.log("新待办事项:", newTodo);
       isOpenAddTodoDialog.value = false; // 关闭弹窗
       await addTodo(newTodo);
-      fetchTodos()
+      await fetchTodos()
     };
 
     // 获取 todos 数据
     const fetchTodos = async () => {
       await markTodoAsOverdue();
       todos.value = await getTodos();
-      store.state._todoList = todos
       if (store.state.todoDetail && store.state.todoDetail.id !== 0 && store.state.todoDetail.status === "已完成") {
         store.state.todoDetail.id = 0;
       }
       todos.value = getSortedTodos();
+      // store.commit("SET_TODO_LIST", todos.value);
     };
+
+    watch(() => store.state._todoList, async () => {
+      console.log("todoList changed");
+      await fetchTodos();
+    }, { deep: true });
 
     const toggleTodoStatus = async (id) => {
       const todo = todos.value.find(t => t.id === id);
@@ -114,7 +119,7 @@ export default {
           }
         }
         setTimeout(() => {
-          fetchTodos();
+          todos.value = getSortedTodos();
         }, 500);
       }
     };
@@ -158,6 +163,7 @@ export default {
     };
 
     onMounted(fetchTodos);
+
 
     return {
       todos,

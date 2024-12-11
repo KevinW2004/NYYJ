@@ -122,8 +122,7 @@ export const createNewTerm = async (termData: any) => {
     const newTermData = {
         name: term,
         totalWeeks: termData.totalWeeks || 17,
-        // startDate: termData.startDate || new Date().toISOString().split('T')[0],
-        startDate: termData.startDate || new Date().toISOString(),
+        startDate: termData.startDate || new Date().toLocaleString(),
         courses: termData.courses || [],
         todoList: termData.todoList || []
     };

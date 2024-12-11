@@ -136,7 +136,7 @@ export default {
       }
       const TermData = await readTermData(currentTerm.value)
       TermData.name = newTermName.value;
-      TermData.startDate = startDate.value.toISOString().split('T')[0];
+      TermData.startDate = startDate.value.toLocaleString().split('T')[0];
       TermData.totalWeeks = totalWeeks.value;
       if (newTermName.value !== currentTerm.value) {
         await deleteTerm(currentTerm.value)

@@ -215,7 +215,7 @@
 
 <script>
 // import {ref, computed, onMounted} from 'vue';
-import {getCourses, saveCourses} from "@/utils/storage";
+import {getCourses, readCurrentTermData, saveCourses} from "@/utils/storage";
 import CourseDetailSidebar from "@/components/CourseDetailSidebar.vue";
 
 export default {
@@ -328,6 +328,8 @@ export default {
         this.courseInfos.forEach(info => {
           this.courseInfoMap[info.key] = info;
         });
+        const termData = await readCurrentTermData();
+        this.weekOptions = Array.from({length: termData.totalWeeks}, (_, i) => i + 1)
       } catch (error) {
         console.log("错啦")
         console.error(error);

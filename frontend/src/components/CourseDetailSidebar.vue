@@ -90,6 +90,94 @@
         <h4> TODO 列表</h4>
         <mini-todo-list :course-name="courseInfo_copy.name"/>
       </div>
+
+      <v-dialog v-model="isSubDialogVisible" max-width="500px">
+        <v-card class="configure-session__box shadow-lg rounded-lg">
+          <v-card-title class="text-lg font-semibold" style="background: #9370DB">
+            <h3 style="color: white">配置课时组合</h3>
+          </v-card-title>
+          <v-card-text>
+            <v-form ref="subForm" class="space-y-4">
+              <div class="form-field">
+                <v-select
+                    v-model="tempSession.startWeek"
+                    :items="weekNumbers"
+                    label="起始周"
+                    outlined
+                    required
+                ></v-select>
+                <span v-if="startWeekError" class="error-text">{{ startWeekError }}</span>
+              </div>
+
+              <div class="form-field">
+                <v-select
+                    v-model="tempSession.endWeek"
+                    :items="weekNumbers"
+                    label="结束周"
+                    outlined
+                    required
+                ></v-select>
+                <span v-if="endWeekError" class="error-text">{{ endWeekError }}</span>
+              </div>
+
+              <div class="form-field">
+                <v-radio-group
+                    v-model="tempSession.weekType"
+                    label="周数类型"
+                    outlined
+                    required
+                    inline
+                    class="label-styled"
+                >
+                  <v-radio label="全部" value="all"></v-radio>
+                  <v-radio label="单周" value="single"></v-radio>
+                  <v-radio label="双周" value="double"></v-radio>
+                </v-radio-group>
+                <span v-if="weekTypeError" class="error-text">{{ weekTypeError }}</span>
+              </div>
+
+              <div class="form-field">
+                <v-select
+                    v-model="tempSession.weekDay"
+                    :items="weeks"
+                    label="上课星期"
+                    outlined
+                    required
+                ></v-select>
+                <span v-if="dayError" class="error-text">{{ dayError }}</span>
+              </div>
+
+              <div class="form-field">
+                <v-select
+                    v-model="tempSession.timeSlots"
+                    :items="timeSlots"
+                    label="课程时间"
+                    outlined
+                    multiple
+                    required
+                ></v-select>
+                <span v-if="timeSlotsError" class="error-text">{{ timeSlotsError }}</span>
+              </div>
+
+              <div class="form-field">
+                <v-text-field
+                    v-model="tempSession.location"
+                    label="开课地点"
+                    outlined
+                    required
+                ></v-text-field>
+                <span v-if="locationError" class="error-text">{{ locationError }}</span>
+              </div>
+            </v-form>
+
+          </v-card-text>
+          <v-card-actions>
+            <!-- 确认按钮始终可点击 -->
+            <v-btn @click="handleAddSession" color="success">确认</v-btn>
+            <v-btn @click="isSubDialogVisible = false" color="error">取消</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </div>
   </transition>
 </template>
@@ -97,7 +185,7 @@
 <script>
 import backgroundImg from '@/assets/blue-bg.jpg'
 import MiniTodoList from "@/components/MiniTodoList.vue";
-import {getTodos, setTodos} from "@/utils/storage";
+import {getTodos, readCurrentTermData, setTodos} from "@/utils/storage";
 
 export default {
   components: {MiniTodoList},
@@ -129,6 +217,22 @@ export default {
       ], // 节次的时间段
       weekNumbers: Array.from({length: 17}, (_, i) => i + 1), // 1 到 17 的周数
       weekTypes: ['全部', '单周', '双周'], // 周次类型
+      isSubDialogVisible: false,
+      tempSession: {
+        startWeek: null,
+        endWeek: null,
+        weekType: 'all',
+        weekDay: null,
+        timeSlots: [],
+        location: '',
+      },
+      startWeekError: '',
+      endWeekError: '',
+      weekTypeError: '',
+      dayError: '',
+      timeSlotsError: '',
+      locationError: '',
+      weeks: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
     };
   },
   computed: {
@@ -151,13 +255,17 @@ export default {
       }
     }
   },
+
+
   watch: {
-    isVisible(newVal) {
+    async isVisible(newVal) {
       if (newVal === true) {
         // 当 isVisible 从 false 变为 true 时，更新 editableCourseInfo
         this.courseInfo_copy = {...this.courseInfo};
         this.editableCourseInfo = {...this.courseInfo};
         this.editMode = false;
+        const termData = await readCurrentTermData();
+        this.weekNumbers = Array.from({length: termData.totalWeeks}, (_, i) => i + 1)
       }
     },
     'editableCourseInfo.session_for_show': {
@@ -241,8 +349,19 @@ export default {
           section: parseTimeSlots(session.timeSlots)
         }
       })
+      const colorClasses = [
+        'orange',
+        'blue',
+        'green',
+        'red',
+        'purple',
+        'yellow',
+        'pink',
+        'teal',
+        'gray',
+      ];
       for (let i = 0; i < transformedCourses.length; i++) {
-        transformedCourses[i].color = this.editableCourseInfo.courses[i].color
+        transformedCourses[i].color =  colorClasses[Math.floor(Math.random() * colorClasses.length)]
       }
       this.editableCourseInfo.courses = transformedCourses
       // 更改如果修改了课程名字，则同步修改todo列表，里面绑定的course也要同步修改
@@ -261,8 +380,108 @@ export default {
       this.editMode = !this.editMode
     },
 
+    removeSession(index) {
+      this.editableCourseInfo.session_for_show.splice(index, 1);
+    },
+
     removeCourse() {
       this.$emit('remove-course', this.courseInfo)
+    },
+
+    validateFields() {
+      let isValid = true;
+
+      // 验证起始周
+      if (!this.tempSession.startWeek) {
+        this.startWeekError = '请选择起始周';
+        isValid = false;
+      } else {
+        this.startWeekError = '';
+      }
+
+      // 验证结束周
+      if (!this.tempSession.endWeek) {
+        this.endWeekError = '请选择结束周';
+        isValid = false;
+      } else if (this.tempSession.endWeek < this.tempSession.startWeek) {
+        this.endWeekError = '结束周不能小于起始周';
+        isValid = false;
+      } else {
+        this.endWeekError = '';
+      }
+
+      // 验证周数类型
+      if (!this.tempSession.weekType) {
+        this.weekTypeError = '请选择周数类型';
+        isValid = false;
+      } else {
+        this.weekTypeError = '';
+      }
+
+      // 验证上课星期
+      if (!this.tempSession.weekDay) {
+        this.dayError = '请选择上课星期';
+        isValid = false;
+      } else {
+        this.dayError = '';
+      }
+
+      // 验证课程时间
+      if (!Array.isArray(this.tempSession.timeSlots) || this.tempSession.timeSlots.length === 0) {
+        this.timeSlotsError = '请选择课程时间';
+        isValid = false;
+      } else {
+        this.timeSlotsError = '';
+      }
+
+      // 验证开课地点
+      if (!this.tempSession.location) {
+        this.locationError = '请输入开课地点';
+        isValid = false;
+      } else {
+        this.locationError = '';
+      }
+
+      return isValid;
+    },
+
+    handleAddSession() {
+      if (this.validateFields()) {
+        this.saveSession();
+        this.isSubDialogVisible = false;
+      }
+    },
+
+    saveSession() {
+      const type = this.tempSession.weekType === "all" ? "全部" :
+          this.tempSession.weekType === "single" ? "单周" : "双周"
+      const session = {
+        weeks: `${this.tempSession.startWeek}-${this.tempSession.endWeek} (${this.tempSession.weekType === 'single' ? '单周' : this.tempSession.weekType === 'double' ? '双周' : '全部'})`,
+        weekDay: this.tempSession.weekDay,
+        timeSlots: this.tempSession.timeSlots,
+        location: this.tempSession.location,
+        startWeek: this.tempSession.startWeek,
+        endWeek: this.tempSession.endWeek,
+        weekType: type,
+      };
+      this.editableCourseInfo.session_for_show.push(session);
+
+      this.resetTempSession();
+    },
+
+    resetTempSession() {
+      this.tempSession = {
+        startWeek: null,
+        endWeek: null,
+        weekType: 'all',
+        weekDay: null,
+        timeSlot: '',
+        location: ''
+      };
+    },
+
+    openNewSessionDialog() {
+      this.isSubDialogVisible = true
     }
   }
 };

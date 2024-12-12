@@ -81,7 +81,7 @@
       </transition>
 
       <span v-if="!sessionCheck" class="error-text">请至少填入一个课时</span>
-      <div style="width: 100%; display: flex; margin-bottom: 10px" v-if="editMode">
+      <div style="width: 100%; display: flex; justify-content: center; margin-bottom: 10px" v-if="editMode">
         <v-btn @click="openNewSessionDialog" v-if="editMode" color="primary"
                style="margin-top: 10px;margin-bottom: 10px; align-self: center;">
           <v-icon>mdi-plus</v-icon>

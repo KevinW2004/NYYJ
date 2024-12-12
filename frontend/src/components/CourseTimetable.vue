@@ -286,7 +286,7 @@ export default {
 
   computed: {
     filteredCourses() {
-      return this.splitCourses(this.courseInfos)
+      return this.courseInfos
           .flatMap(courseInfo => courseInfo.courses.map(course => ({
             ...course,
             key: courseInfo.key
@@ -657,46 +657,6 @@ export default {
 
     getCoursesForDay(dayIndex) {
       return this.filteredCourses.filter(course => course.day === dayIndex);
-    },
-
-    splitCourses() {
-      return this.courseInfos.map((courseInfo) => {
-        const newCourses = [];
-
-        courseInfo.courses.forEach(course => {
-          // 检查section是否连续
-          const sections = course.section.sort((a, b) => a - b);
-          const splitSections = [];
-          let currentSection= [sections[0]];
-
-          for(let i = 1; i < sections.length; i++) {
-            if(sections[i] - sections[i-1] === 1) {
-              currentSection.push(sections[i]);
-            } else {
-              splitSections.push([...currentSection]);
-              currentSection = [sections[i]];
-            }
-          }
-          splitSections.push(currentSection);
-
-          // 如果需要拆分
-          if(splitSections.length > 1) {
-            splitSections.forEach(section => {
-              newCourses.push({
-                ...course,
-                section
-              });
-            });
-          } else {
-            newCourses.push(course);
-          }
-        });
-
-        return {
-          ...courseInfo,
-          courses: newCourses
-        };
-      });
     },
 
     calculateWeekDays() {

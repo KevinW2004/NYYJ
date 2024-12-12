@@ -1,4 +1,5 @@
 import {checkFileExist, deleteFile, readFile, saveDataToFile} from "./file";
+import store from "@/store";
 
 const BASE_PATH = 'D:/NYYJ-Storage/'
 const GLOBAL_CONFIG_FILE = `${BASE_PATH}global_config.json`
@@ -37,7 +38,7 @@ export const readGlobalConfig = async () => {
     console.log("readGlobalConfig")
     if (!await checkFileExist(GLOBAL_CONFIG_FILE)) {
         await saveDataToFile(GLOBAL_CONFIG_FILE, DEFAULT_GLOBAL_CONFIG);
-        await createNewTerm({ name: "新学期1", totalWeeks: 17, startDate: new Date().toISOString() });
+        await createNewTerm({ name: "新学期1", totalWeeks: 17, startDate: new Date("2024-9-2").toLocaleString() });
     }
     const config = await readFile(GLOBAL_CONFIG_FILE);
     // return JSON.parse(config) as GlobalConfig;
@@ -121,8 +122,7 @@ export const createNewTerm = async (termData: any) => {
     const newTermData = {
         name: term,
         totalWeeks: termData.totalWeeks || 17,
-        // startDate: termData.startDate || new Date().toISOString().split('T')[0],
-        startDate: termData.startDate || new Date().toISOString(),
+        startDate: termData.startDate || new Date("2024-9-2").toLocaleString(),
         courses: termData.courses || [],
         todoList: termData.todoList || []
     };
@@ -151,6 +151,12 @@ export const getCourses = async () => {
     console.log("getCourses")
     const termData = await readCurrentTermData();
     return termData.courses;
+};
+
+export const getTermLenthAndStartDate = async () => {
+    console.log("getTermLenthAndStartDate")
+    const termData = await readCurrentTermData();
+    return { totalWeeks: termData.totalWeeks, startDate: termData.startDate };
 };
 
 // 保存当前学期的 courses 数据
@@ -202,7 +208,7 @@ export const updateTodo = async ( updatedTodo: TodoData) => {
     for(let i = 0; i < termData.todoList.length; i++){
         if(termData.todoList[i].id === updatedTodo.id){
             termData.todoList[i] = updatedTodo;
-            saveCurrentTermData(termData);
+            await saveCurrentTermData(termData);
         }
     }
 };
@@ -238,6 +244,13 @@ export const resetTodo = async (id: number) => {
     const todo = termData.todoList.find(todo => todo.id === id);
     if (todo) {
         todo.status = "未完成";
+        if (todo.dueDate) {
+            const currentDate = new Date().toISOString(); // 获取当前时间
+            const dueDate = new Date(todo.dueDate).toISOString(); // 任务截止日期
+            if (currentDate > dueDate) {
+                todo.status = "已逾期"; // 状态改为逾期
+            }
+        }
         await saveCurrentTermData(termData);
     } else {
         throw new Error("Todo not found");

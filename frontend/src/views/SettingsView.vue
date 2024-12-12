@@ -39,10 +39,10 @@
           <h4> 开课日期（仅限周一） </h4>
           <v-date-picker v-model="startDate" label="开课时间" required :allowed-dates="allowedDates" color="purple"></v-date-picker>
           <v-text-field v-model="totalWeeks" label="总周数" type="number" required
-                        :rules="[rules.required]"></v-text-field>
+                        :rules="[rules.positive]"></v-text-field>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-alert v-model="showError" type="error" text="请填写完整信息！" closable border="start"/>
           <v-btn @click="closeNewTermDialog" color="grey">取消</v-btn>
           <v-btn @click="saveNewTerm" color="white">保存</v-btn>
         </v-card-actions>
@@ -57,11 +57,11 @@
         <v-card-text>
           <v-text-field v-model="newTermName" label="学期名称" required :rules="[rules.required]"></v-text-field>
           <h4> 开课日期（仅限周一） </h4>
-          <v-date-picker v-model="startDate" label="开课时间" required :allowed-dates="allowedDates" color="purple"></v-date-picker>
-          <v-text-field v-model="totalWeeks" label="总周数" type="number" required :rules="[rules.required]"></v-text-field>
+          <v-date-picker v-model="startDate" label="开课时间" required :allowed-dates="allowedDates"  color="purple"></v-date-picker>
+          <v-text-field v-model="totalWeeks" label="总周数" type="number" required :rules="[rules.positive]"></v-text-field>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-alert v-model="showError" type="error" text="请填写完整信息！" closable border="start"/>
           <v-btn @click="editTermDialog = false" color="grey">取消</v-btn>
           <v-btn @click="saveEditTerm" color="white">保存</v-btn>
         </v-card-actions>
@@ -87,9 +87,11 @@ export default {
     const startDate = ref(null);
     const totalWeeks = ref(0);
     const valid = ref(false);
+    const showError = ref(false);
 
     const rules = {
       required: (v) => !!v || '此项为必填项',
+      positive: (v) => v > 0 || '此项必须大于0',
     };
     // 允许的日期函数：检查日期是否为周一
     const allowedDates = (date) => {
@@ -128,9 +130,13 @@ export default {
 
     const saveEditTerm = async () => {
       console.log("saveEditTerm");
+      if (newTermName.value === '' || startDate.value === null || totalWeeks.value <= 0) {
+        showError.value = true;
+        return;
+      }
       const TermData = await readTermData(currentTerm.value)
       TermData.name = newTermName.value;
-      TermData.startDate = startDate.value.toISOString().split('T')[0];
+      TermData.startDate = startDate.value.toLocaleString().split('T')[0];
       TermData.totalWeeks = totalWeeks.value;
       if (newTermName.value !== currentTerm.value) {
         await deleteTerm(currentTerm.value)
@@ -150,6 +156,9 @@ export default {
 
     const openNewTermDialog = () => {
       newTermDialog.value = true;
+      newTermName.value = '';
+      startDate.value = null;
+      totalWeeks.value = 0;
     };
 
     const closeNewTermDialog = () => {
@@ -159,18 +168,26 @@ export default {
       totalWeeks.value = 0;
     };
     const deleteCurrentTerm = async () => {
+      // 如果仅有最后一个学期，则不允许删除
+      if (terms.value.length <= 1) {
+        alert('至少需要保留一个学期！');
+        return;
+      }
       const confirmation = confirm(`确定要删除当前学期 "${currentTerm.value}" 吗？`);
       if (confirmation) {
         await deleteTerm(currentTerm.value); // 假设这是一个删除学期的函数
-        alert('学期已删除！');
         window.location.reload();
       }
     };
 
     const saveNewTerm = async () => {
+      if (newTermName.value === '' || startDate.value === null || totalWeeks.value <= 0) {
+        showError.value = true;
+        return;
+      }
       const newTerm = {
         name: newTermName.value,
-        startDate: startDate.value.toISOString().split('T')[0],
+        startDate: startDate.value.toLocaleString().split('T')[0],
         totalWeeks: totalWeeks.value,
         courses: [],
       };
@@ -194,6 +211,7 @@ export default {
       startDate,
       totalWeeks,
       valid,
+      showError,
       rules,
       saveSettings,
       openEditTermDialog,

@@ -36,7 +36,11 @@ async function createWindow() {
   } else {
     createProtocol('app')
     // Load the index.html when not in development
-    win.loadURL('app://./index.html')
+    // win.loadURL('app://./index.html')
+    console.log(__dirname);
+    console.log('Try to load file:');
+    console.log(path.join(__dirname, '../public/index.html'));
+    win.loadFile(path.join(__dirname, '../public/index.html'))
   }
   win.setMinimumSize(1200, 800)
 }

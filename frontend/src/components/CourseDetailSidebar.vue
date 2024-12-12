@@ -240,7 +240,7 @@ export default {
   right: 0;
   width: 25%;
   height: 100%;
-  //background: url("@/assets/blue-bg.jpg");
+  background: url("@/assets/blue-bg.jpg");
   background: rgba(128, 0, 128, 0.15) ;
   background-size: cover;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);

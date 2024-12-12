@@ -4,28 +4,43 @@
       <v-row no-gutters class="full-height" align="center" justify="center">
         <v-col style="width: 80%; padding: 0;">
           <v-card class="todo-card">
-            <!-- 返回按钮 -->
-            <v-btn icon @click="clearTodo" class="back-btn">
-              <v-icon>mdi-arrow-left</v-icon>
-            </v-btn>
+            <v-row class="btn-row">
+              <!-- 返回按钮 -->
+              <v-btn v-if="!editMode" icon @click="clearTodo" class="back-btn" size="small">
+                <v-icon>mdi-arrow-left</v-icon>
+              </v-btn>
+              <v-btn v-else icon @click="cancelEdit" class="back-btn" size="small">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+              <!--显示编辑按钮 -->
+              <v-btn v-if="!editMode"
+                  icon="mdi-pencil"  size="small" color="green" style="margin-left: 50px;" class="back-btn" @click="edit" />
+            </v-row>
 
             <!-- 标题和课程 -->
             <v-card-title class="title-container">
-              <div class="headline">{{ todo.title }}</div>
+              <div class="headline" v-if="!editMode">{{ todo.title }}</div>
+              <h3 v-else class="headline">编辑待办任务</h3>
             </v-card-title>
 
             <!-- 信息展示区域 -->
-            <v-card-text class="todo-details">
               <!-- 描述 -->
+            <v-card-text class="todo-details">
+              <div v-if="editMode" class="todo-info">
+                <v-icon class="todo-icon"> mdi-format-title </v-icon>
+                <v-text-field v-model="editTodo.title" label="任务标题" outlined  style="width: 200px;margin-left: 10px;"/>
+              </div>
               <div class="todo-info">
                 <v-icon class="todo-icon">mdi-text-box</v-icon>
-                <span><strong>描述:</strong> {{ todo.description }}</span>
+                <span v-if ="!editMode" ><strong>描述:</strong> {{ todo.description }}</span>
+                <v-textarea v-else v-model="editTodo.description" label="任务详情" outlined style="margin-left: 10px;"></v-textarea>
               </div>
 
               <!-- 所属课程 -->
               <div class="todo-info">
                 <v-icon class="todo-icon">mdi-book-open-page-variant</v-icon>
-                <span><strong>所属课程:</strong> {{ todo.course }}</span>
+                <span v-if= "!editMode"><strong>所属课程:</strong> {{ todo.course }}</span>
+                <v-select v-else v-model="editTodo.course" :items="courses" label="课程" outlined style="margin-left: 10px;"></v-select>
               </div>
 
               <!-- 状态 -->
@@ -37,17 +52,61 @@
               <!-- 到期日期 -->
               <div class="todo-info">
                 <v-icon class="todo-icon">mdi-calendar-clock</v-icon>
-                <span><strong>到期时间:</strong> {{ formatDueDate(todo.dueDate) }}</span>
-              </div>
+                <span v-if= "!editMode"><strong>到期时间:</strong> {{ formatDueDate(todo.dueDate) }}</span>
 
+                <v-row style="margin-bottom: 10px; margin-top: 10px; margin-left: 10px;" v-else>
+<!--                    <v-icon style="margin-top: 20px;" class="todo-icon"> mdi-calendar-clock </v-icon>-->
+                    <!-- 日期选择器 -->
+                    <v-date-input
+                        v-model="selectedDate"
+                        label="截止日期"
+                        outlined
+                        required
+                        style="
+                          margin-right: 10px;
+                        "
+                        prepend-icon=""
+                    >
+                  </v-date-input>
+
+                    <!-- 时间选择器文本框 -->
+                    <v-text-field
+                        v-model="selectedTime"
+                        label="截止时间"
+                        outlined
+                        readonly
+                        @click="showTimePicker = true"
+                    ></v-text-field>
+
+                    <!-- 时间选择器弹窗 -->
+                    <v-dialog v-model="showTimePicker" max-width="290px">
+                        <v-card>
+                        <v-time-picker
+                            v-model="selectedTime"
+                            format="24hr"
+                            scrollable
+                        ></v-time-picker>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn text color="primary" @click="showTimePicker = false">
+                            确定
+                            </v-btn>
+                        </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                  </v-row>
+              </div>
             </v-card-text>
 
             <!-- 日历区域 -->
-            <v-col cols="12">
+            <v-col cols="12" v-if ="!editMode">
               <v-sheet class="calendar">
                 <v-calendar :events="events"></v-calendar>
               </v-sheet>
             </v-col>
+
+            <v-btn color="green" @click="edit" v-if="editMode"
+             style="margin-top: 10px; width: 200px; align-self: center;">保存修改</v-btn>
           </v-card>
         </v-col>
       </v-row>
@@ -67,10 +126,11 @@
 
 <script>
 import {useStore} from 'vuex';
-import {ref, watch} from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import {VCalendar} from 'vuetify/labs/VCalendar'
 import TodoCalendar from "@/components/TodoCalendar.vue";
-
+import { getCourses } from '@/utils/storage';
+import { updateTodo } from '@/utils/storage';
 export default {
   components: {
     TodoCalendar,
@@ -103,6 +163,16 @@ export default {
       dueDate: ''
     });
 
+    //用于存储
+    const editTodo = ref({
+      id: 0,
+      course: '',
+      title: '',
+      description: '',
+      status: '',
+      dueDate: ''
+    })
+
     // Vuex store 引用
     const store = useStore();
 
@@ -112,8 +182,18 @@ export default {
         (newTodoDetail) => {
           todo.value = newTodoDetail;
           setEvents();
+          editTodo.value = newTodoDetail;
         },
         {immediate: true}
+    );
+    watch (
+      () => todo.value,
+      (newVal, oldVal) => {
+        if (editMode.value) {
+          cancelEdit();
+        }
+
+      }
     );
 
     // 格式化到期日期
@@ -131,6 +211,7 @@ export default {
 
     // 清空 Todo
     const clearTodo = () => {
+
       todo.value = {
         id: 0,
         course: '',
@@ -139,14 +220,105 @@ export default {
         status: '',
         dueDate: ''
       };
+      if(editMode.value){
+        editMode.value = false;
+      }
+      if(isDetailsVisible.value){
+        isDetailsVisible.value = false;
+      }
       store.commit('set_todo_detail', todo)
+
     };
+    const editMode = ref(false);
+    const isDetailsVisible = ref(false);
+
+    const courseInfo = ref([]);
+    const courses = ref([]);
+
+
+    // 日期和时间选择器
+    const selectedDate = ref(null); // 用户选择的日期
+    const selectedTime = ref(null); // 用户选择的时间
+    const showTimePicker = ref(false); // 控制时间选择器弹窗显示
+    const edit = async () => {
+      editMode.value = !editMode.value;
+      if (editMode.value) {
+        isDetailsVisible.value = true
+      }
+      if (!editMode.value) {
+        console.log(selectedTime.value);
+        const [hours, minutes] = selectedTime.value.split(":").map(Number);
+        const date = new Date(selectedDate.value);
+        date.setHours(hours, minutes);
+
+        editTodo.value.dueDate = date.toISOString();
+        let currentDate = new Date().toISOString;
+        if (editTodo.value.status !== "已完成") {
+          if (editTodo.value.dueDate < currentDate) {
+            editTodo.value.status = "已逾期";
+          } else {
+            editTodo.value.status = "未完成";
+          }
+        }
+        todo.value = {...editTodo.value};
+
+        console.log("updateTodo :", editTodo);
+        await updateTodo(todo.value);
+        store.commit('set_todo_detail', todo.value);
+        store.commit('SET_TODO_LIST', []);
+      }
+    };
+    const cancelEdit = () => {
+      editMode.value = !editMode.value;
+    };
+
+    watch(
+      isDetailsVisible,
+      (newVal, oldVal) => {
+        console.log(`isDetailsVisible changed from ${oldVal} to ${newVal}`);
+        if (newVal) {
+          // 如果 isDetailsVisible 为 true，触发某些逻辑
+          editTodo.value = {...todo.value};
+          selectedDate.value = new Date(editTodo.value.dueDate.split('T')[0]);
+          selectedTime.value = editTodo.value.dueDate.split('T')[1].slice(0, 5); // 确保 HH:mm 格式
+          console.log("selectedTime: ", selectedTime.value);
+        }
+      }
+    );
+
+    // 加载课程表
+    const loadTimetable = async () => {
+      try {
+        courses.value.push("其他事务");
+        courseInfo.value = await getCourses();
+        for (let i = 0; i < courseInfo.value.length; i++) {
+          courses.value.push(courseInfo.value[i].name);
+        }
+      } catch (error) {
+        console.error("fail:", error);
+      }
+    };
+    onMounted (() => {
+      loadTimetable();
+    });
 
     return {
       todo,
       events,
+      editMode,
+      isDetailsVisible,
+      editTodo,
+      courseInfo,
+      courses,
+      selectedDate,
+      selectedTime,
+      showTimePicker,
       formatDueDate,
-      clearTodo
+      clearTodo,
+      edit,
+      getCourses,
+      loadTimetable,
+      cancelEdit
     };
   }
 };
@@ -237,4 +409,18 @@ export default {
   left: 20px;
   z-index: 10;
 }
+.btn-row {
+  max-height: 40px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 15px;
+}
+
+.custom-date-input .v-input__icon {
+  color: blue; /* 修改v-date-input的图标颜色，使其与上下文相匹配 */
+  margin-right: 10px;
+  margin-left:13px;
+}
+
 </style>

@@ -95,16 +95,21 @@
         <v-icon class="ml-1">{{ isDetailsVisible ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
       </div>
 
+      <div v-if="!submitCheck && editMode" class="error-container">
+        <span class="error-text">请完善课时信息</span>
+      </div>
+
       <!-- 保存按钮 -->
-      <span v-if="!submitCheck && editMode" class="error-text"> 请完善信息 </span>
-      <v-row v-if="editMode" justify="space-between" align="center" class="button-row">
-        <v-btn @click="saveChanges" class="save-btn" color="blue">
-          保存修改
-        </v-btn>
-        <v-btn @click="cancelChange" class="cancel-btn" color="red">
-          取消修改
-        </v-btn>
-      </v-row>
+      <div>
+        <v-row v-if="editMode" justify="space-between" align="center" class="button-row">
+          <v-btn @click="cancelChange" class="cancel-btn" color="red">
+            取消修改
+          </v-btn>
+          <v-btn @click="saveChanges" class="save-btn" color="blue">
+            保存修改
+          </v-btn>
+        </v-row>
+      </div>
 
       <div v-if="!editMode" class="todo-container">
         <h4> TODO 列表</h4>
@@ -679,6 +684,12 @@ export default {
   width: 100%;
 }
 
+.error-container {
+  margin-bottom: 10px; /* 给错误提示和按钮之间增加空间 */
+  text-align: center; /* 居中对齐 */
+}
+
+
 .error-text {
   color: red;
   font-size: 12px;
@@ -694,11 +705,11 @@ export default {
 }
 
 .save-btn {
-  margin-left: 15px;
-  margin-right: 8px
+  margin: 0 8px; /* 添加适当的间距 */
 }
 .cancel-btn {
-  margin: 0 8px; /* 添加适当的间距 */
+  margin-left: 15px;
+  margin-right: 8px
 }
 
 </style>

@@ -215,7 +215,7 @@
 
 <script>
 // import {ref, computed, onMounted} from 'vue';
-import {getCourses, saveCourses,getTermLenthAndStartDate} from "@/utils/storage";
+import {getCourses, saveCourses} from "@/utils/storage";
 import CourseDetailSidebar from "@/components/CourseDetailSidebar.vue";
 
 export default {
@@ -266,7 +266,7 @@ export default {
         timeSlots: [],
         location: ''
       },
-      weekOptions: [],
+      weekOptions: Array.from({length: 17}, (_, i) => i + 1),
       weeks: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
       // 表单验证错误消息
       startWeekError: '',
@@ -286,7 +286,7 @@ export default {
 
   computed: {
     filteredCourses() {
-      return (this.courseInfos)
+      return this.courseInfos
           .flatMap(courseInfo => courseInfo.courses.map(course => ({
             ...course,
             key: courseInfo.key
@@ -313,43 +313,6 @@ export default {
   },
 
   methods: {
-    async loadTermLenthAndStartDate() {
-      try {
-        const data = await getTermLenthAndStartDate()
-        console.log("data.termLenth:", data.totalWeeks)
-        console.log("data.startDate:", data.startDate)
-        console.log("this.totalWeeks:", this.totalWeeks)
-        this.totalWeeks = parseInt(data.totalWeeks, 10); // 将字符串转换为整数
-        this.semesterStartDate = new Date(data.startDate)
-
-        // 检查 this.totalWeeks 的类型和值
-        console.log("this.totalWeeks type:", typeof this.totalWeeks); // 输出类型
-        console.log("this.totalWeeks value:", this.totalWeeks); // 输出值
-        this.weekOptions =  Array.from({length: this.totalWeeks}, (_, i) => i + 1)
-        // 计算当前周
-        const today = new Date();
-        const weeksDiff = Math.floor((today - this.semesterStartDate) / (7 * 24 * 60 * 60 * 1000));
-        this.currentWeek = weeksDiff >= 0 ? weeksDiff + 1 : 0;
-        this.selectedWeek = this.currentWeek;
-        //计算本周的日期
-        const startOfWeek = new Date(this.semesterStartDate);
-        startOfWeek.setDate(startOfWeek.getDate() + (this.selectedWeek - 1) * 7);
-        this.weekDays = [];
-        for (let i = 0; i < 7; i++) {
-          const date = new Date(startOfWeek);
-          date.setDate(startOfWeek.getDate() + i);
-          this.weekDays.push({
-            name: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'][i],
-            date: date.getDate(),
-            month: date.getMonth() + 1
-          });
-        }
-        this.currentMonth = startOfWeek.toLocaleString('default', {month: 'long'});
-
-      } catch (error) {
-        console.error(error);
-      }
-    },
     // 加载课程信息
     async loadTimetable() {
       try {
@@ -416,6 +379,7 @@ export default {
       });
       this.closeSidebar()
     },
+
     cancel() {
       this.isDialogVisible = false
       this.resetCourse()
@@ -431,23 +395,13 @@ export default {
     },
 
     showCourseDetails(course) {
-      console.log("显示课程详情")
-      console.log(course)
-      if (this.isSidebarVisible && this.selectedCourseInfo && this.selectedCourseInfo.key === course.key)
-        return;
       this.selectedCourseInfo = {...this.courseInfoMap[course.key]};
-      if (this.isSidebarVisible) {
-        this.closeSidebar()
-        setTimeout(() => {
-          this.isSidebarVisible = true;
-          // 调整 main-timetable-container 的宽度
-          this.mainContainerWidth = '73%'; // 缩小为 70%，可以根据需要调整这个值
-        }, 200);
-      }
-      else {
+      this.closeSidebar()
+      setTimeout(() => {
         this.isSidebarVisible = true;
-        this.mainContainerWidth = '73%'
-      }
+        // 调整 main-timetable-container 的宽度
+        this.mainContainerWidth = '70%'; // 缩小为 70%，可以根据需要调整这个值
+      }, 50);
     },
 
     closeSidebar() {
@@ -729,13 +683,12 @@ export default {
       this.currentWeek = weeksDiff >= 0 ? weeksDiff + 1 : 0;
       this.selectedWeek = this.currentWeek;
     }
-
-
   },
 
   mounted() {
-    this.loadTermLenthAndStartDate();
     this.loadTimetable();
+    this.calculateCurrentWeek();
+    this.calculateWeekDays();
   }
 };
 </script>

@@ -168,6 +168,11 @@ export default {
       totalWeeks.value = 0;
     };
     const deleteCurrentTerm = async () => {
+      // 如果仅有最后一个学期，则不允许删除
+      if (terms.value.length <= 1) {
+        alert('至少需要保留一个学期！');
+        return;
+      }
       const confirmation = confirm(`确定要删除当前学期 "${currentTerm.value}" 吗？`);
       if (confirmation) {
         await deleteTerm(currentTerm.value); // 假设这是一个删除学期的函数

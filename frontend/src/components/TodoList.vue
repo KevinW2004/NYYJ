@@ -118,9 +118,10 @@ export default {
             todo.status = '已逾期';
           }
         }
-        setTimeout(() => {
+        setTimeout(async () => {
           todos.value = getSortedTodos();
-        }, 500);
+          // await fetchTodos();
+        }, 700);
       }
     };
 
@@ -138,6 +139,10 @@ export default {
 
     // 获取排序后的 todos
     const getSortedTodos = () => {
+      // 删除已完成且已逾期的 todo
+      todos.value = todos.value.filter(todo => {
+        return !(todo.status === '已完成' && new Date(todo.dueDate) < new Date());
+      });
       // 按到期日期排序，且已完成的放在最后
       let sortedTodos = todos.value.slice().sort((a, b) => {
         const dateA = new Date(a.dueDate);

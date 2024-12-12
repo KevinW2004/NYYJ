@@ -286,7 +286,7 @@ export default {
 
   computed: {
     filteredCourses() {
-      return this.courseInfos
+      return (this.courseInfos)
           .flatMap(courseInfo => courseInfo.courses.map(course => ({
             ...course,
             key: courseInfo.key
@@ -345,7 +345,7 @@ export default {
           });
         }
         this.currentMonth = startOfWeek.toLocaleString('default', {month: 'long'});
-        
+
       } catch (error) {
         console.error(error);
       }

@@ -215,7 +215,7 @@
 
 <script>
 // import {ref, computed, onMounted} from 'vue';
-import {getCourses, readCurrentTermData, saveCourses} from "@/utils/storage";
+import {getCourses, readCurrentTermData, saveCourses,getTermLenthAndStartDate} from "@/utils/storage";
 import CourseDetailSidebar from "@/components/CourseDetailSidebar.vue";
 
 export default {
@@ -313,6 +313,33 @@ export default {
   },
 
   methods: {
+
+    async setStartDateAndWeeks() {
+      const termData = await getTermLenthAndStartDate()
+      this.totalWeeks = parseInt(termData.totalWeeks)  
+      this.semesterStartDate = new Date(termData.startDate)
+      //计算当前周数
+      const today = new Date();
+      const weeksDiff = Math.floor((today - this.semesterStartDate) / (7 * 24 * 60 * 60 * 1000));
+      this.currentWeek = weeksDiff >= 0 ? weeksDiff + 1 : 0;
+      this.selectedWeek = this.currentWeek;
+
+      const startOfWeek = new Date(this.semesterStartDate);
+      startOfWeek.setDate(startOfWeek.getDate() + (this.selectedWeek - 1) * 7);
+      // 计算周的日期
+      this.weekDays = [];
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
+        this.weekDays.push({
+          name: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'][i],
+          date: date.getDate(),
+          month: date.getMonth() + 1
+        });
+      }
+
+      this.currentMonth = startOfWeek.toLocaleString('default', {month: 'long'});
+    },
     // 加载课程信息
     async loadTimetable() {
       try {
@@ -728,9 +755,8 @@ export default {
   },
 
   mounted() {
+    this.setStartDateAndWeeks();
     this.loadTimetable();
-    this.calculateCurrentWeek();
-    this.calculateWeekDays();
   }
 };
 </script>

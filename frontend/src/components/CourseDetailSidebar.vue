@@ -21,18 +21,26 @@
       <div class="course-info">
         <p><strong>教师：</strong>
           <span v-if="!editMode">{{ courseInfo_copy.teacher }}</span>
-          <v-text-field v-else :rules="[rules.notEmpty]" v-model="editableCourseInfo.teacher" label="教师" dense outlined/>
+          <v-text-field v-else :rules="[rules.notEmpty]" v-model="editableCourseInfo.teacher" label="教师" dense
+                        outlined/>
         </p>
         <p><strong>课程备注：</strong>
-          <span v-if="!editMode" style="white-space: pre-wrap; word-wrap: break-word;">{{ courseInfo_copy.remark }}</span>
-          <v-textarea v-else v-model="editableCourseInfo.remark" label="课程描述" style="white-space: pre-wrap;" dense outlined/>
+          <span v-if="!editMode" style="white-space: pre-wrap; word-wrap: break-word;">{{
+              courseInfo_copy.remark
+            }}</span>
+          <v-textarea v-else v-model="editableCourseInfo.remark" label="课程描述" style="white-space: pre-wrap;" dense
+                      outlined/>
         </p>
       </div>
 
       <!-- 课时信息 (可展开/隐藏) -->
       <transition name="expand-fade">
-        <div v-if="isDetailsVisible && Array.isArray(courseInfo_copy.session_for_show) && courseInfo_copy.session_for_show.length > 0"
-             class="course-sessions">
+        <div
+            v-if="isDetailsVisible && Array.isArray(courseInfo_copy.session_for_show)
+                    && courseInfo_copy.session_for_show.length > 0
+                    && Array.isArray(editableCourseInfo.session_for_show)
+                    && editableCourseInfo.session_for_show.length > 0"
+            class="course-sessions">
           <div v-for="(course, index) in courseInfo_copy.session_for_show" :key="index" class="course-session">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <h3>课时 {{ index + 1 }}</h3>
@@ -43,15 +51,19 @@
               <p><strong>地点：</strong>
                 <span v-if="!editMode">{{ course.location }}</span>
                 <v-text-field v-else :rules="[rules.notEmpty]"
-                              v-model="editableCourseInfo.session_for_show[index].location" label="地点" dense outlined/>
+                              v-model="editableCourseInfo.session_for_show[index].location" label="地点" dense
+                              outlined/>
               </p>
               <p><strong>上课周数：</strong>
                 <span v-if="!editMode">{{ course.weeks }}</span>
-                <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].startWeek" :items="weekNumbers" label="开始周" dense outlined
+                <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].startWeek"
+                          :items="weekNumbers" label="开始周" dense outlined
                           :rules="[rules.weekRules(index)]"></v-select>
-                <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].endWeek" :items="weekNumbers" label="结束周" dense outlined
+                <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].endWeek"
+                          :items="weekNumbers" label="结束周" dense outlined
                           :rules="[rules.weekRules(index)]"></v-select>
-                <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].weekType" :items="weekTypes" label="周次类型" dense outlined></v-select>
+                <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].weekType"
+                          :items="weekTypes" label="周次类型" dense outlined></v-select>
               </p>
               <p><strong>星期：</strong>
                 <span v-if="!editMode">{{ course.weekDay }}</span>
@@ -65,15 +77,17 @@
               </p>
             </div>
           </div>
-          <div style="width: 100%; display: flex;" v-if="editMode">
-            <v-btn @click="openNewSessionDialog" v-if="editMode" color="primary"
-                   style="margin-top: 10px;margin-bottom: 10px; align-self: center;">
-              <v-icon>mdi-plus</v-icon>
-              新增课时
-            </v-btn>
-          </div>
         </div>
       </transition>
+
+      <span v-if="!sessionCheck" class="error-text">请至少填入一个课时</span>
+      <div style="width: 100%; display: flex; margin-bottom: 10px" v-if="editMode">
+        <v-btn @click="openNewSessionDialog" v-if="editMode" color="primary"
+               style="margin-top: 10px;margin-bottom: 10px; align-self: center;">
+          <v-icon>mdi-plus</v-icon>
+          新增课时
+        </v-btn>
+      </div>
 
       <!-- 仅显示文本和尖角 -->
       <div @click="toggleCourseDetails" class="toggle-text" v-if="!editMode">
@@ -82,9 +96,15 @@
       </div>
 
       <!-- 保存按钮 -->
-      <v-btn v-if="editMode" @click="saveChanges" class="save-btn" color="blue">
-        保存修改
-      </v-btn>
+      <span v-if="!submitCheck && editMode" class="error-text"> 请完善信息 </span>
+      <v-row v-if="editMode" justify="space-between" align="center" class="button-row">
+        <v-btn @click="saveChanges" class="save-btn" color="blue">
+          保存修改
+        </v-btn>
+        <v-btn @click="cancelChange" class="cancel-btn" color="red">
+          取消修改
+        </v-btn>
+      </v-row>
 
       <div v-if="!editMode" class="todo-container">
         <h4> TODO 列表</h4>
@@ -195,11 +215,11 @@ export default {
   },
   data() {
     return {
-      courseInfo_copy: {...this.courseInfo},
+      courseInfo_copy: Object,
       backgroundImg,
       isDetailsVisible: false, // 控制课时信息的显示/隐藏
       editMode: false, // 控制编辑模式
-      editableCourseInfo: {...this.courseInfo}, // 存储可编辑的课程信息副本
+      editableCourseInfo: Object, // 存储可编辑的课程信息副本
       weekDays: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'], // 星期数据
       timeSlots: [
         "08:00 - 08:50",
@@ -233,6 +253,8 @@ export default {
       timeSlotsError: '',
       locationError: '',
       weeks: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+      submitCheck: true,
+      sessionCheck: true,
     };
   },
   computed: {
@@ -261,8 +283,8 @@ export default {
     async isVisible(newVal) {
       if (newVal === true) {
         // 当 isVisible 从 false 变为 true 时，更新 editableCourseInfo
-        this.courseInfo_copy = {...this.courseInfo};
-        this.editableCourseInfo = {...this.courseInfo};
+        this.courseInfo_copy = JSON.parse(JSON.stringify(this.courseInfo))
+        this.editableCourseInfo = JSON.parse(JSON.stringify(this.courseInfo))
         this.editMode = false;
         const termData = await readCurrentTermData();
         this.weekNumbers = Array.from({length: termData.totalWeeks}, (_, i) => i + 1)
@@ -271,6 +293,12 @@ export default {
     'editableCourseInfo.session_for_show': {
       handler(newSessionForShow) {
         newSessionForShow.forEach(session => {
+          if (!newSessionForShow || newSessionForShow.length === 0) {
+            this.sessionCheck = false;
+            return;
+          } else {
+            this.sessionCheck = true
+          }
           if (Array.isArray(session.timeSlots)) {
             // 确保 timeSlots 按时间顺序排列
             session.timeSlots = session.timeSlots.sort((a, b) => {
@@ -286,16 +314,24 @@ export default {
   },
   methods: {
     edit() {
+      if (this.editMode) {
+        this.editableCourseInfo = JSON.parse(JSON.stringify(this.courseInfo_copy))
+      }
       this.editMode = !this.editMode
       if (this.editMode) {
         this.isDetailsVisible = true
       }
+      this.sessionCheck = true
+      this.submitCheck = true
     },
     close() {
       this.$emit('close');
       this.isDetailsVisible = false;
       this.editMode = false
+      this.sessionCheck = true
+      this.submitCheck = true
     },
+
     toggleCourseDetails() {
       this.isDetailsVisible = !this.isDetailsVisible;
     },
@@ -304,7 +340,36 @@ export default {
       return `${startWeek}-${endWeek} (${weekType})`;
     },
 
+    validCourseInfoCheck() {
+      if (this.editableCourseInfo.name.length === 0) {
+        return false;
+      }
+      const sessions = this.editableCourseInfo.session_for_show
+      if (!sessions || sessions.length === 0) {
+        this.sessionCheck = false
+        return false;
+      }
+      let isValid = true;
+      sessions.forEach((session, index) => {
+        if (session.startWeek > session.endWeek) {
+          console.error(`第 ${index + 1} 个 session 的 startWeek 大于 endWeek`);
+          isValid = false;
+        }
+
+        if (!session.timeSlots || session.timeSlots.length === 0) {
+          console.error(`第 ${index + 1} 个 session 的 timeSlots 为空`);
+          isValid = false;
+        }
+      });
+      return isValid
+    },
+
     async saveChanges() {
+      if (!this.validCourseInfoCheck()) {
+        this.submitCheck = false
+        return false
+      }
+      this.submitCheck = true
       this.editableCourseInfo.session_for_show.map(session => {
         session.weeks = this.generateWeeks(session.startWeek, session.endWeek, session.weekType)
         return {
@@ -361,7 +426,7 @@ export default {
         'gray',
       ];
       for (let i = 0; i < transformedCourses.length; i++) {
-        transformedCourses[i].color =  colorClasses[Math.floor(Math.random() * colorClasses.length)]
+        transformedCourses[i].color = colorClasses[Math.floor(Math.random() * colorClasses.length)]
       }
       this.editableCourseInfo.courses = transformedCourses
       // 更改如果修改了课程名字，则同步修改todo列表，里面绑定的course也要同步修改
@@ -378,6 +443,13 @@ export default {
       this.$emit('update-course', this.editableCourseInfo)
       this.courseInfo_copy = this.editableCourseInfo
       this.editMode = !this.editMode
+    },
+
+    cancelChange() {
+      this.editableCourseInfo = JSON.parse(JSON.stringify(this.courseInfo))
+      this.editMode = !this.editMode
+      this.sessionCheck = true
+      this.submitCheck = true
     },
 
     removeSession(index) {
@@ -606,4 +678,27 @@ export default {
   margin-top: 10px;
   width: 100%;
 }
+
+.error-text {
+  color: red;
+  font-size: 12px;
+  margin-top: -4px; /* 使错误提示紧贴在输入框下方 */
+  line-height: 1.2;
+}
+
+.button-row {
+  width: 100%; /* 确保按钮在一行 */
+  display: flex;
+  justify-content: space-between; /* 两个按钮左右对称分布 */
+  align-items: center;
+}
+
+.save-btn {
+  margin-left: 15px;
+  margin-right: 8px
+}
+.cancel-btn {
+  margin: 0 8px; /* 添加适当的间距 */
+}
+
 </style>

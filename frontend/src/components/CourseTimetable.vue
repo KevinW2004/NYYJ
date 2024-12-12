@@ -208,6 +208,7 @@
         @close="closeSidebar"
         @update-course="updateSelectedCourseInfo"
         @remove-course="removeCourse"
+
     />
 
   </div>
@@ -424,7 +425,7 @@ export default {
     },
 
     showCourseDetails(course) {
-      this.selectedCourseInfo = {...this.courseInfoMap[course.key]};
+      this.selectedCourseInfo = JSON.parse(JSON.stringify(this.courseInfoMap[course.key]));
       this.closeSidebar()
       setTimeout(() => {
         this.isSidebarVisible = true;

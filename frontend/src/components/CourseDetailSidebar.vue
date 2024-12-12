@@ -34,7 +34,11 @@
         <div v-if="isDetailsVisible && Array.isArray(courseInfo_copy.session_for_show) && courseInfo_copy.session_for_show.length > 0"
              class="course-sessions">
           <div v-for="(course, index) in courseInfo_copy.session_for_show" :key="index" class="course-session">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
             <h3>课时 {{ index + 1 }}</h3>
+            <v-btn @click="removeSession(index)" v-if="editMode" color="red" icon="mdi-delete" small
+              style="align-self: flex-end"/>
+            </div>
             <div class="session-details">
               <p><strong>地点：</strong>
                 <span v-if="!editMode">{{ course.location }}</span>
@@ -57,6 +61,11 @@
                           label="节次" multiple dense outlined/>
               </p>
             </div>
+          </div>
+          <div style="width: 100%; display: flex;" v-if="editMode">
+            <v-btn @click="openNewSessionDialog" v-if="editMode" color="primary"
+            style="margin-top: 10px;margin-bottom: 10px; align-self: center;">
+              <v-icon>mdi-plus</v-icon>新增课时</v-btn>
           </div>
         </div>
       </transition>
@@ -123,6 +132,7 @@ export default {
         // 当 isVisible 从 false 变为 true 时，更新 editableCourseInfo
         this.courseInfo_copy = {...this.courseInfo};
         this.editableCourseInfo = { ...this.courseInfo };
+        this.editMode = false;
       }
     },
     'editableCourseInfo.session_for_show': {

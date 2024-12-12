@@ -14,18 +14,18 @@
       <!-- 课程名居中显示 -->
       <h1 class="course-name">
         <span v-if="!editMode">{{ courseInfo_copy.name }}</span>
-        <v-text-field v-else v-model="editableCourseInfo.name" label="课程名" dense outlined/>
+        <v-text-field v-else :rules="[rules.notEmpty]" v-model="editableCourseInfo.name" label="课程名" dense outlined/>
       </h1>
 
       <!-- 教师和课程描述信息 -->
       <div class="course-info">
         <p><strong>教师：</strong>
           <span v-if="!editMode">{{ courseInfo_copy.teacher }}</span>
-          <v-text-field v-else v-model="editableCourseInfo.teacher" label="教师" dense outlined/>
+          <v-text-field v-else :rules="[rules.notEmpty]" v-model="editableCourseInfo.teacher" label="教师" dense outlined/>
         </p>
         <p><strong>课程备注：</strong>
           <span v-if="!editMode" style="white-space: pre-wrap; word-wrap: break-word;">{{ courseInfo_copy.remark }}</span>
-          <v-textarea v-else v-model="editableCourseInfo.remark" label="课程描述" style="white-space: pre-wrap;" dense outlined />
+          <v-textarea v-else v-model="editableCourseInfo.remark" label="课程描述" style="white-space: pre-wrap;" dense outlined/>
         </p>
       </div>
 
@@ -35,19 +35,22 @@
              class="course-sessions">
           <div v-for="(course, index) in courseInfo_copy.session_for_show" :key="index" class="course-session">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3>课时 {{ index + 1 }}</h3>
-            <v-btn @click="removeSession(index)" v-if="editMode" color="red" icon="mdi-delete" small
-              style="align-self: flex-end"/>
+              <h3>课时 {{ index + 1 }}</h3>
+              <v-btn @click="removeSession(index)" v-if="editMode" color="red" icon="mdi-delete" small
+                     style="align-self: flex-end"/>
             </div>
             <div class="session-details">
               <p><strong>地点：</strong>
                 <span v-if="!editMode">{{ course.location }}</span>
-                <v-text-field v-else v-model="editableCourseInfo.session_for_show[index].location" label="地点" dense outlined/>
+                <v-text-field v-else :rules="[rules.notEmpty]"
+                              v-model="editableCourseInfo.session_for_show[index].location" label="地点" dense outlined/>
               </p>
               <p><strong>上课周数：</strong>
                 <span v-if="!editMode">{{ course.weeks }}</span>
-                <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].startWeek" :items="weekNumbers" label="开始周" dense outlined></v-select>
-                <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].endWeek" :items="weekNumbers" label="结束周" dense outlined></v-select>
+                <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].startWeek" :items="weekNumbers" label="开始周" dense outlined
+                          :rules="[rules.weekRules(index)]"></v-select>
+                <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].endWeek" :items="weekNumbers" label="结束周" dense outlined
+                          :rules="[rules.weekRules(index)]"></v-select>
                 <v-select v-if="editMode" v-model="editableCourseInfo.session_for_show[index].weekType" :items="weekTypes" label="周次类型" dense outlined></v-select>
               </p>
               <p><strong>星期：</strong>
@@ -58,14 +61,16 @@
               <p><strong>节次：</strong>
                 <span v-if="!editMode">{{ course.timeSlots.join(', ') }}</span>
                 <v-select v-else v-model="editableCourseInfo.session_for_show[index].timeSlots" :items="timeSlots"
-                          label="节次" multiple dense outlined/>
+                          label="节次" multiple dense outlined :rules="[rules.timeSlotRules]"/>
               </p>
             </div>
           </div>
           <div style="width: 100%; display: flex;" v-if="editMode">
             <v-btn @click="openNewSessionDialog" v-if="editMode" color="primary"
-            style="margin-top: 10px;margin-bottom: 10px; align-self: center;">
-              <v-icon>mdi-plus</v-icon>新增课时</v-btn>
+                   style="margin-top: 10px;margin-bottom: 10px; align-self: center;">
+              <v-icon>mdi-plus</v-icon>
+              新增课时
+            </v-btn>
           </div>
         </div>
       </transition>
@@ -122,16 +127,36 @@ export default {
         "20:30 - 21:20",
         "21:30 - 22:20"
       ], // 节次的时间段
-      weekNumbers: Array.from({ length: 17 }, (_, i) => i + 1), // 1 到 17 的周数
+      weekNumbers: Array.from({length: 17}, (_, i) => i + 1), // 1 到 17 的周数
       weekTypes: ['全部', '单周', '双周'], // 周次类型
     };
+  },
+  computed: {
+    rules() {
+      return {
+        weekRules: (index) => {
+          const startWeek = this.editableCourseInfo.session_for_show[index].startWeek
+          const endWeek = this.editableCourseInfo.session_for_show[index].endWeek
+          if (startWeek > endWeek) {
+            return '结束周必须大于等于开始周'
+          }
+          return true
+        },
+        timeSlotRules: (value) => {
+          return value.length > 0 || '必须选择至少一个节次'
+        },
+        notEmpty: (value) => {
+          return value.trim() !== '' || '不能为空'
+        }
+      }
+    }
   },
   watch: {
     isVisible(newVal) {
       if (newVal === true) {
         // 当 isVisible 从 false 变为 true 时，更新 editableCourseInfo
         this.courseInfo_copy = {...this.courseInfo};
-        this.editableCourseInfo = { ...this.courseInfo };
+        this.editableCourseInfo = {...this.courseInfo};
         this.editMode = false;
       }
     },
@@ -251,7 +276,7 @@ export default {
   width: 25%;
   height: 100%;
   background: url("@/assets/blue-bg.jpg");
-  background: rgba(128, 0, 128, 0.15) ;
+  background: rgba(128, 0, 128, 0.15);
   background-size: cover;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
   z-index: 1000;

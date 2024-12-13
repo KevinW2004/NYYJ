@@ -252,9 +252,11 @@ export default {
         date.setHours(hours, minutes);
 
         editTodo.value.dueDate = date.toISOString();
-        let currentDate = new Date().toISOString;
+        const currentDate = new Date();
+        console.log("currentDate: ", currentDate);
+        console.log("editTodo.value.dueDate: ", editTodo.value.dueDate);
         if (editTodo.value.status !== "已完成") {
-          if (editTodo.value.dueDate < currentDate) {
+          if (date < currentDate) {
             editTodo.value.status = "已逾期";
           } else {
             editTodo.value.status = "未完成";
@@ -279,8 +281,10 @@ export default {
         if (newVal) {
           // 如果 isDetailsVisible 为 true，触发某些逻辑
           editTodo.value = {...todo.value};
+          const dateTime = new Date(editTodo.value.dueDate).toLocaleString();
+          console.log("dateTime: ", dateTime);
           selectedDate.value = new Date(editTodo.value.dueDate.split('T')[0]);
-          selectedTime.value = editTodo.value.dueDate.split('T')[1].slice(0, 5); // 确保 HH:mm 格式
+          selectedTime.value = dateTime.split(' ')[1].slice(0, 5); // 确保 HH:mm 格式
           console.log("selectedTime: ", selectedTime.value);
         }
       }

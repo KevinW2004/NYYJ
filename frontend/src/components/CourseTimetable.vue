@@ -71,8 +71,9 @@
           </v-card-title>
           <v-card-text>
             <v-form ref="form" v-model="isFormValid" class="space-y-4">
-              <v-text-field v-model="newCourse.name" label="课程名称"  required dense></v-text-field>
               <span v-if="nameError" class="error-text" style="margin-bottom: 10px">{{ nameError }}</span>
+              <v-text-field v-model="newCourse.name" label="课程名称"  required dense></v-text-field>
+
               <v-text-field v-model="newCourse.teacher" label="教师名字" outlined required></v-text-field>
               <v-textarea v-model="newCourse.description" label="课程备注" outlined></v-textarea>
 
@@ -99,9 +100,9 @@
               </div>
 
               <!-- 新增课时按钮 -->
-              <v-btn @click="openNewSessionDialog" color="primary">新增课时</v-btn>
-              <br>
               <span v-if="sessionsError" class="error-text">{{ sessionsError }}</span>
+              <br/>
+              <v-btn @click="openNewSessionDialog" color="primary">新增课时</v-btn>
             </v-form>
           </v-card-text>
           <v-card-actions>
@@ -119,6 +120,7 @@
           </v-card-title>
           <v-card-text>
             <v-form ref="subForm" class="space-y-4">
+              <span v-if="startWeekError" class="error-text">{{ startWeekError }}</span>
               <div class="form-field">
                 <v-select
                     v-model="tempSession.startWeek"
@@ -127,10 +129,10 @@
                     outlined
                     required
                 ></v-select>
-                <span v-if="startWeekError" class="error-text">{{ startWeekError }}</span>
               </div>
 
               <div class="form-field">
+                <span v-if="endWeekError" class="error-text">{{ endWeekError }}</span>
                 <v-select
                     v-model="tempSession.endWeek"
                     :items="weekOptions"
@@ -138,10 +140,10 @@
                     outlined
                     required
                 ></v-select>
-                <span v-if="endWeekError" class="error-text">{{ endWeekError }}</span>
               </div>
 
               <div class="form-field">
+                <span v-if="weekTypeError" class="error-text">{{ weekTypeError }}</span>
                 <v-radio-group
                     v-model="tempSession.weekType"
                     label="周数类型"
@@ -154,10 +156,10 @@
                   <v-radio label="单周" value="single"></v-radio>
                   <v-radio label="双周" value="double"></v-radio>
                 </v-radio-group>
-                <span v-if="weekTypeError" class="error-text">{{ weekTypeError }}</span>
               </div>
 
               <div class="form-field">
+                <span v-if="dayError" class="error-text">{{ dayError }}</span>
                 <v-select
                     v-model="tempSession.weekDay"
                     :items="weeks"
@@ -165,10 +167,10 @@
                     outlined
                     required
                 ></v-select>
-                <span v-if="dayError" class="error-text">{{ dayError }}</span>
               </div>
 
               <div class="form-field">
+                <span v-if="timeSlotsError" class="error-text">{{ timeSlotsError }}</span>
                 <v-select
                     v-model="tempSession.timeSlots"
                     :items="formattedTimeSlots"
@@ -177,17 +179,16 @@
                     multiple
                     required
                 ></v-select>
-                <span v-if="timeSlotsError" class="error-text">{{ timeSlotsError }}</span>
               </div>
 
               <div class="form-field">
+                <span v-if="locationError" class="error-text">{{ locationError }}</span>
                 <v-text-field
                     v-model="tempSession.location"
                     label="开课地点"
                     outlined
                     required
                 ></v-text-field>
-                <span v-if="locationError" class="error-text">{{ locationError }}</span>
               </div>
             </v-form>
 
@@ -317,7 +318,7 @@ export default {
 
     async setStartDateAndWeeks() {
       const termData = await getTermLenthAndStartDate()
-      this.totalWeeks = parseInt(termData.totalWeeks)  
+      this.totalWeeks = parseInt(termData.totalWeeks)
       this.semesterStartDate = new Date(termData.startDate)
       //计算当前周数
       const today = new Date();

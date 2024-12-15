@@ -124,6 +124,7 @@
           <v-card-text>
             <v-form ref="subForm" class="space-y-4">
               <div class="form-field">
+                <span v-if="startWeekError" class="error-text">{{ startWeekError }}</span>
                 <v-select
                     v-model="tempSession.startWeek"
                     :items="weekNumbers"
@@ -131,10 +132,10 @@
                     outlined
                     required
                 ></v-select>
-                <span v-if="startWeekError" class="error-text">{{ startWeekError }}</span>
               </div>
 
               <div class="form-field">
+                <span v-if="endWeekError" class="error-text">{{ endWeekError }}</span>
                 <v-select
                     v-model="tempSession.endWeek"
                     :items="weekNumbers"
@@ -142,10 +143,10 @@
                     outlined
                     required
                 ></v-select>
-                <span v-if="endWeekError" class="error-text">{{ endWeekError }}</span>
               </div>
 
               <div class="form-field">
+                <span v-if="weekTypeError" class="error-text">{{ weekTypeError }}</span>
                 <v-radio-group
                     v-model="tempSession.weekType"
                     label="周数类型"
@@ -158,10 +159,10 @@
                   <v-radio label="单周" value="single"></v-radio>
                   <v-radio label="双周" value="double"></v-radio>
                 </v-radio-group>
-                <span v-if="weekTypeError" class="error-text">{{ weekTypeError }}</span>
               </div>
 
               <div class="form-field">
+                <span v-if="dayError" class="error-text">{{ dayError }}</span>
                 <v-select
                     v-model="tempSession.weekDay"
                     :items="weeks"
@@ -169,10 +170,10 @@
                     outlined
                     required
                 ></v-select>
-                <span v-if="dayError" class="error-text">{{ dayError }}</span>
               </div>
 
               <div class="form-field">
+                <span v-if="timeSlotsError" class="error-text">{{ timeSlotsError }}</span>
                 <v-select
                     v-model="tempSession.timeSlots"
                     :items="timeSlots"
@@ -181,17 +182,16 @@
                     multiple
                     required
                 ></v-select>
-                <span v-if="timeSlotsError" class="error-text">{{ timeSlotsError }}</span>
               </div>
 
               <div class="form-field">
+                <span v-if="locationError" class="error-text">{{ locationError }}</span>
                 <v-text-field
                     v-model="tempSession.location"
                     label="开课地点"
                     outlined
                     required
                 ></v-text-field>
-                <span v-if="locationError" class="error-text">{{ locationError }}</span>
               </div>
             </v-form>
 

@@ -28,7 +28,7 @@
             <v-card-text class="todo-details">
               <div v-if="editMode" class="todo-info">
                 <v-icon class="todo-icon"> mdi-format-title </v-icon>
-                <v-text-field v-model="editTodo.title" label="任务标题" outlined  style="width: 200px;margin-left: 10px;"/>
+                <v-text-field v-model="editTodo.title" label="任务标题" outlined :rules="[rules.required]" style="width: 200px;margin-left: 10px;"/>
               </div>
               <div class="todo-info">
                 <v-icon class="todo-icon">mdi-text-box</v-icon>
@@ -40,7 +40,7 @@
               <div class="todo-info">
                 <v-icon class="todo-icon">mdi-book-open-page-variant</v-icon>
                 <span v-if= "!editMode"><strong>所属课程:</strong> {{ todo.course }}</span>
-                <v-select v-else v-model="editTodo.course" :items="courses" label="课程" outlined style="margin-left: 10px;"></v-select>
+                <v-select v-else v-model="editTodo.course" :items="courses" label="课程" :rules="[rules.required]" outlined style="margin-left: 10px;"></v-select>
               </div>
 
               <!-- 状态 -->
@@ -65,6 +65,7 @@
                         style="
                           margin-right: 10px;
                         "
+                        :rules="[rules.required]"
                         prepend-icon=""
                     >
                   </v-date-input>
@@ -75,6 +76,7 @@
                         label="截止时间"
                         outlined
                         readonly
+                        :rules="[rules.required]"
                         @click="showTimePicker = true"
                     ></v-text-field>
 
@@ -105,6 +107,7 @@
               </v-sheet>
             </v-col>
 
+            <v-alert v-if="editMode" v-model="showAlert" type="error" text="请填写完整信息" closable/>
             <v-btn color="green" @click="edit" v-if="editMode"
              style="margin-top: 10px; width: 200px; align-self: center;">保存修改</v-btn>
           </v-card>
@@ -138,6 +141,9 @@ export default {
   },
   setup() {
     const events = ref([]);
+    const rules = { // vuetify 表单验证规则
+      required: value => !!value || '此项为必填项',
+    };
 
     // 设置事件
     const setEvents = () => {
@@ -240,12 +246,14 @@ export default {
     const selectedDate = ref(null); // 用户选择的日期
     const selectedTime = ref(null); // 用户选择的时间
     const showTimePicker = ref(false); // 控制时间选择器弹窗显示
+    const showAlert = ref(false); // 控制提示框显示
     const edit = async () => {
-      editMode.value = !editMode.value;
-      if (editMode.value) {
-        isDetailsVisible.value = true
-      }
       if (!editMode.value) {
+        editMode.value = !editMode.value;
+        isDetailsVisible.value = true;
+        return;
+      }
+      if (editMode.value) {
         console.log(selectedTime.value);
         const [hours, minutes] = selectedTime.value.split(":").map(Number);
         const date = new Date(selectedDate.value);
@@ -262,6 +270,12 @@ export default {
             editTodo.value.status = "未完成";
           }
         }
+        if (editTodo.value.title === '' || editTodo.value.course === '' || editTodo.value.dueDate === '') {
+          console.log("请填写完整信息");
+          showAlert.value = true;
+          return;
+        }
+        editMode.value = !editMode.value;
         todo.value = {...editTodo.value};
 
         console.log("updateTodo :", editTodo);
@@ -317,6 +331,8 @@ export default {
       selectedDate,
       selectedTime,
       showTimePicker,
+      rules,
+      showAlert,
       formatDueDate,
       clearTodo,
       edit,
@@ -394,10 +410,6 @@ export default {
 .v-card-text {
   font-size: 1.2rem;
   color: #555;
-}
-
-.v-alert {
-  margin-top: 20px;
 }
 
 .calendar {

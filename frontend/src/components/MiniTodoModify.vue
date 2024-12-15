@@ -7,6 +7,7 @@
           label="任务标题"
           outlined
           required
+          :rules="[rules.required]"
       ></v-text-field>
 
       <!-- 关联课程（不可修改，设为定值） -->
@@ -23,13 +24,14 @@
           label="任务详情"
           outlined
       ></v-textarea>
-      <v-row style="margin-bottom: 10px">
+      <v-row style="margin-bottom: 20px">
         <!-- 日期选择器 -->
         <v-date-input
             v-model="selectedDate"
             label="截止日期"
             outlined
             required
+            :rules="[rules.required]"
             style="margin-right: 10px"
         ></v-date-input>
 
@@ -39,6 +41,7 @@
             label="截止时间"
             outlined
             readonly
+            :rules="[rules.required]"
             @click="showTimePicker = true"
         ></v-text-field>
 
@@ -60,6 +63,8 @@
         </v-dialog>
       </v-row>
       <!-- 保存按钮 -->
+      <v-alert v-model="showAlert" type="error" closable text="请填写所有必填项"
+      style="margin-top: 20px; margin-bottom: 20px"/>
       <v-btn color="success" @click="submitTodo">保存</v-btn>
     </v-form>
   </div>
@@ -105,18 +110,13 @@ export default {
 
 
     // 提交修改后的 todo
+    const rules = {
+      required: value =>!!value || "此项为必填项",
+    }
+    const showAlert = ref(false);
     const submitTodo = () => {
-      if (!localTodo.title.trim()) {
-        alert("请输入任务标题");
-        return;
-      }
-
-      if (!localTodo.course) {
-        alert("请选择关联课程");
-        return;
-      }
-      if (!localTodo.dueDate) {
-        alert("请选择截止日期和时间");
+      if (!localTodo.title.trim() || !localTodo.course || !localTodo.dueDate){
+        showAlert.value = true;
         return;
       }
       emit('update-todo', localTodo);  // 将修改后的 todo 提交给父组件
@@ -127,6 +127,8 @@ export default {
       selectedDate,
       selectedTime,
       showTimePicker,
+      rules,
+      showAlert,
       submitTodo
     };
   }
